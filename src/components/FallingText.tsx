@@ -193,16 +193,17 @@ const FallingText: React.FC<FallingTextProps> = ({
       className="relative z-[1] w-full h-full cursor-pointer text-center pt-8 overflow-hidden"
       onClick={trigger === 'click' ? handleTrigger : undefined}
       onMouseEnter={trigger === 'hover' ? handleTrigger : undefined}
+      style={{ color: "hsl(0 0% 20%)" }}
     >
       <div
         ref={textRef}
-        className="inline-block"
+        className="inline-block relative z-[2]"
         style={{
           fontSize,
           lineHeight: 1.4,
         }}
       />
-      <div className="absolute top-0 left-0 z-0" ref={canvasContainerRef} />
+      <div className="absolute top-0 left-0 w-full h-full z-[1]" ref={canvasContainerRef} />
     </div>
   );
 };
