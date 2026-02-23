@@ -32,22 +32,23 @@ const ProjectsSection = () => {
 
       const totalWidth = track.scrollWidth - window.innerWidth;
 
-      // Heading cinematic entrance
+      // Heading entrance — repeatable
       if (headingRef.current) {
         const chars = headingRef.current.querySelectorAll(".heading-char");
         gsap.set(chars, { y: 120, opacity: 0, rotateX: 90 });
         ScrollTrigger.create({
           trigger: sectionRef.current,
           start: "top 80%",
-          once: true,
           onEnter: () => {
             gsap.to(chars, {
-              y: 0,
-              opacity: 1,
-              rotateX: 0,
-              duration: 1.2,
-              stagger: 0.04,
-              ease: "power4.out",
+              y: 0, opacity: 1, rotateX: 0,
+              duration: 1.2, stagger: 0.04, ease: "power4.out",
+            });
+          },
+          onLeaveBack: () => {
+            gsap.to(chars, {
+              y: 120, opacity: 0, rotateX: 90,
+              duration: 0.6, stagger: 0.02, ease: "power2.in",
             });
           },
         });
@@ -67,36 +68,66 @@ const ProjectsSection = () => {
         },
       });
 
-      // Card reveal with clip-path + y-axis + rotation for premium feel
+      // Card reveal — toggleActions so it replays on every scroll
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
-        gsap.set(card, {
-          clipPath: "inset(20% 8% 20% 8%)",
-          opacity: 0,
-          scale: 0.85,
-          y: 80,
-          rotateY: 8,
-        });
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          start: "top 70%",
-          once: true,
-          onEnter: () => {
-            gsap.to(card, {
-              clipPath: "inset(0% 0% 0% 0%)",
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              rotateY: 0,
-              duration: 1.6,
-              delay: i * 0.2,
-              ease: "power4.out",
-            });
+
+        // Each card animates as it enters the viewport during horizontal scroll
+        gsap.fromTo(
+          card,
+          {
+            clipPath: "inset(15% 5% 15% 5%)",
+            opacity: 0,
+            scale: 0.88,
+            y: 60,
           },
-        });
+          {
+            clipPath: "inset(0% 0% 0% 0%)",
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 1.4,
+            ease: "power4.out",
+            scrollTrigger: {
+              trigger: card,
+              containerAnimation: gsap.getById?.("hscroll") || undefined,
+              start: "left 90%",
+              end: "left 40%",
+              scrub: 1,
+              // Use the section's horizontal scroll trigger
+              horizontal: true,
+            },
+          }
+        );
       });
 
-      // Parallax images inside cards on horizontal scroll
+      // Since containerAnimation needs reference, use simpler approach:
+      // Animate cards based on section scroll progress
+      const totalCards = projects.length;
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return;
+        const startPct = i / (totalCards + 1);
+        const endPct = (i + 0.8) / (totalCards + 1);
+
+        gsap.fromTo(
+          card,
+          { clipPath: "inset(12% 4% 12% 4%)", opacity: 0.3, scale: 0.9 },
+          {
+            clipPath: "inset(0% 0% 0% 0%)",
+            opacity: 1,
+            scale: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: () => `top+=${totalWidth * startPct} top`,
+              end: () => `top+=${totalWidth * endPct} top`,
+              scrub: 0.8,
+            },
+          }
+        );
+      });
+
+      // Parallax images
       imageRefs.current.forEach((img) => {
         if (!img) return;
         gsap.to(img, {
@@ -111,45 +142,25 @@ const ProjectsSection = () => {
         });
       });
 
-      // Title slide-up on horizontal scroll reveal
+      // Title slide-up — scrub-based so it replays
       titleRefs.current.forEach((titleEl, i) => {
         if (!titleEl) return;
+        const startPct = (i + 0.3) / (totalCards + 1);
+        const endPct = (i + 0.7) / (totalCards + 1);
+
         gsap.fromTo(
           titleEl,
-          { y: 40, opacity: 0, clipPath: "inset(100% 0 0 0)" },
+          { y: 30, opacity: 0, clipPath: "inset(100% 0 0 0)" },
           {
             y: 0,
             opacity: 1,
             clipPath: "inset(0% 0 0 0)",
-            duration: 1,
-            delay: i * 0.2 + 0.6,
             ease: "power3.out",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 70%",
-              toggleActions: "play none none none",
-            },
-          }
-        );
-      });
-
-      // Subtle scale on each card during horizontal scroll
-      cardRefs.current.forEach((card, i) => {
-        if (!card) return;
-        const startFraction = i / projects.length;
-        const endFraction = (i + 1) / projects.length;
-
-        gsap.fromTo(
-          card,
-          { scale: 0.95 },
-          {
-            scale: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: () => `top+=${totalWidth * startFraction} top`,
-              end: () => `top+=${totalWidth * endFraction} top`,
-              scrub: 1,
+              start: () => `top+=${totalWidth * startPct} top`,
+              end: () => `top+=${totalWidth * endPct} top`,
+              scrub: 0.8,
             },
           }
         );
@@ -160,9 +171,7 @@ const ProjectsSection = () => {
   }, []);
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
-    };
+    const onMove = (e: MouseEvent) => setCursorPos({ x: e.clientX, y: e.clientY });
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
@@ -171,7 +180,6 @@ const ProjectsSection = () => {
 
   return (
     <>
-      {/* Custom cursor */}
       <div
         className={`view-cursor ${cursorVisible ? "active" : ""}`}
         style={{ transform: `translate(${cursorPos.x - 50}px, ${cursorPos.y - 50}px) scale(${cursorVisible ? 1 : 0})` }}
@@ -186,18 +194,13 @@ const ProjectsSection = () => {
         style={{ background: "hsl(var(--section-dark))" }}
       >
         <div ref={trackRef} className="flex h-screen items-center gap-8 px-16 will-change-transform" style={{ width: "fit-content", perspective: "1200px" }}>
-          {/* Section label */}
           <div ref={headingRef} className="flex-shrink-0 w-[30vw] flex flex-col justify-center pr-8" style={{ perspective: "600px" }}>
             <h2
               className="text-5xl md:text-7xl font-bold leading-tight overflow-hidden"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
             >
               {headingText.split("").map((char, i) => (
-                <span
-                  key={i}
-                  className="heading-char inline-block"
-                  style={{ transformOrigin: "bottom center" }}
-                >
+                <span key={i} className="heading-char inline-block" style={{ transformOrigin: "bottom center" }}>
                   {char === " " ? "\u00A0" : char}
                 </span>
               ))}
@@ -214,27 +217,13 @@ const ProjectsSection = () => {
               onMouseEnter={() => setCursorVisible(true)}
               onMouseLeave={() => setCursorVisible(false)}
             >
-              {/* Project image with parallax */}
               <div className="w-full aspect-[4/3] relative overflow-hidden rounded-sm">
-                <div
-                  ref={(el) => { if (el) imageRefs.current[i] = el; }}
-                  className="w-[116%] h-full"
-                >
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                <div ref={(el) => { if (el) imageRefs.current[i] = el; }} className="w-[116%] h-full">
+                  <img src={project.image} alt={project.title} className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
-              <div
-                ref={(el) => { if (el) titleRefs.current[i] = el; }}
-              >
-                <h3
-                  className="text-2xl md:text-3xl font-bold"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
-                >
+              <div ref={(el) => { if (el) titleRefs.current[i] = el; }}>
+                <h3 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}>
                   {project.title}
                 </h3>
                 <div className="flex gap-3 mt-2">
