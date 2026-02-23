@@ -18,7 +18,9 @@ const projects = [
 const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<HTMLDivElement[]>([]);
+  const imageRefs = useRef<HTMLDivElement[]>([]);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [cursorVisible, setCursorVisible] = useState(false);
 
@@ -29,6 +31,28 @@ const ProjectsSection = () => {
 
       const totalWidth = track.scrollWidth - window.innerWidth;
 
+      // Heading cinematic entrance
+      if (headingRef.current) {
+        const chars = headingRef.current.querySelectorAll(".heading-char");
+        gsap.set(chars, { y: 120, opacity: 0, rotateX: 90 });
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top 80%",
+          once: true,
+          onEnter: () => {
+            gsap.to(chars, {
+              y: 0,
+              opacity: 1,
+              rotateX: 0,
+              duration: 1.2,
+              stagger: 0.04,
+              ease: "power4.out",
+            });
+          },
+        });
+      }
+
+      // Horizontal scroll
       gsap.to(track, {
         x: -totalWidth,
         ease: "none",
@@ -42,26 +66,44 @@ const ProjectsSection = () => {
         },
       });
 
-      // Card entrance — play once and stay
+      // Card staggered entrance with scale + clip-path reveal
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
-        gsap.fromTo(
-          card,
-          { y: 60, opacity: 0, scale: 0.95 },
-          {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            duration: 1,
-            delay: i * 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 80%",
-              once: true,
-            },
-          }
-        );
+        gsap.set(card, {
+          clipPath: "inset(15% 5% 15% 5%)",
+          opacity: 0,
+          scale: 0.88,
+        });
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top 70%",
+          once: true,
+          onEnter: () => {
+            gsap.to(card, {
+              clipPath: "inset(0% 0% 0% 0%)",
+              opacity: 1,
+              scale: 1,
+              duration: 1.4,
+              delay: i * 0.18,
+              ease: "power4.out",
+            });
+          },
+        });
+      });
+
+      // Parallax images inside cards on horizontal scroll
+      imageRefs.current.forEach((img) => {
+        if (!img) return;
+        gsap.to(img, {
+          xPercent: -8,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: () => `+=${totalWidth}`,
+            scrub: 1,
+          },
+        });
       });
     }, sectionRef);
 
@@ -75,6 +117,8 @@ const ProjectsSection = () => {
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
+
+  const headingText = "Selected Works";
 
   return (
     <>
@@ -94,14 +138,22 @@ const ProjectsSection = () => {
       >
         <div ref={trackRef} className="flex h-screen items-center gap-8 px-16 will-change-transform" style={{ width: "fit-content" }}>
           {/* Section label */}
-          <div className="flex-shrink-0 w-[30vw] flex flex-col justify-center pr-8">
+          <div ref={headingRef} className="flex-shrink-0 w-[30vw] flex flex-col justify-center pr-8" style={{ perspective: "600px" }}>
             <h2
-              className="text-5xl md:text-7xl font-bold leading-tight"
+              className="text-5xl md:text-7xl font-bold leading-tight overflow-hidden"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
             >
-              Selected<br />Works
+              {headingText.split("").map((char, i) => (
+                <span
+                  key={i}
+                  className="heading-char inline-block"
+                  style={{ transformOrigin: "bottom center" }}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              ))}
             </h2>
-            <div className="w-16 h-px bg-muted-foreground mt-8" />
+            <div className="w-16 h-px bg-muted-foreground mt-8 origin-left" />
           </div>
 
           {projects.map((project, i) => (
@@ -112,14 +164,19 @@ const ProjectsSection = () => {
               onMouseEnter={() => setCursorVisible(true)}
               onMouseLeave={() => setCursorVisible(false)}
             >
-              {/* Project image */}
+              {/* Project image with parallax */}
               <div className="w-full aspect-[4/3] relative overflow-hidden rounded-sm">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                <div
+                  ref={(el) => { if (el) imageRefs.current[i] = el; }}
+                  className="w-[116%] h-full"
+                >
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </div>
               <div>
                 <h3
