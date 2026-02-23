@@ -25,8 +25,19 @@ const preloadImages = (): Promise<void> => {
   });
 };
 
-// Each reel has digits repeated several times for the "spinning" illusion
 const REEL_DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+// SVG morph paths — circle → organic blob → rectangle that fills screen
+const MORPH_PATHS = [
+  // Circle
+  "M 50,10 C 72,10 90,28 90,50 C 90,72 72,90 50,90 C 28,90 10,72 10,50 C 10,28 28,10 50,10 Z",
+  // Organic blob
+  "M 50,2 C 78,2 98,18 98,50 C 98,82 78,98 50,98 C 22,98 2,82 2,50 C 2,18 22,2 50,2 Z",
+  // Rounded rect expanding
+  "M 50,-20 C 120,-20 120,-20 120,50 C 120,120 120,120 50,120 C -20,120 -20,120 -20,50 C -20,-20 -20,-20 50,-20 Z",
+  // Full screen rect
+  "M 50,-60 C 160,-60 160,-60 160,50 C 160,160 160,160 50,160 C -60,160 -60,160 -60,50 C -60,-60 -60,-60 50,-60 Z",
+];
 
 const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -34,19 +45,16 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
   const leverKnobRef = useRef<HTMLDivElement>(null);
   const reelRefs = useRef<HTMLDivElement[]>([]);
   const frameRef = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLDivElement>(null);
-  const flashRef = useRef<HTMLDivElement>(null);
-  const curtainLeftRef = useRef<HTMLDivElement>(null);
-  const curtainRightRef = useRef<HTMLDivElement>(null);
+  const morphRef = useRef<SVGPathElement>(null);
+  const morphSvgRef = useRef<SVGSVGElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let tl: gsap.core.Timeline;
 
     const run = async () => {
       const preloadPromise = preloadImages();
-
       const digitH = window.innerWidth < 768 ? 80 : 130;
-      // Target positions: reel 0 → digit "1" (index 21), reel 1 → "0" (index 20), reel 2 → "0" (index 20)
       const targets = [21, 20, 20];
 
       tl = gsap.timeline({
@@ -56,22 +64,14 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         },
       });
 
-      // Phase 0: Entrance — frame and reels fade in
+      // Phase 0: Entrance
       tl.fromTo(
         frameRef.current,
-        { opacity: 0, scale: 0.85 },
-        { opacity: 1, scale: 1, duration: 0.8, ease: "power3.out" },
-        0.2
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 0.7, ease: "power3.out" },
+        0.3
       );
 
-      tl.fromTo(
-        labelRef.current,
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
-        0.6
-      );
-
-      // Lever entrance
       tl.fromTo(
         leverArmRef.current,
         { opacity: 0, x: 20 },
@@ -79,21 +79,19 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         0.5
       );
 
-      // Phase 1: Pull the lever down (1s pause then pull)
+      // Phase 1: Pull lever
       tl.to(
         leverKnobRef.current,
-        { y: 80, duration: 0.4, ease: "power2.in" },
-        1.3
+        { y: 80, duration: 0.35, ease: "power2.in" },
+        1.2
       );
-
-      // Lever springs back
       tl.to(
         leverKnobRef.current,
-        { y: 0, duration: 0.6, ease: "elastic.out(1, 0.4)" },
-        1.7
+        { y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" },
+        1.55
       );
 
-      // Phase 2: Reels spin — each reel spins fast then lands on target
+      // Phase 2: Reels spin
       await preloadPromise;
 
       reelRefs.current.forEach((reel, i) => {
@@ -102,79 +100,84 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         if (!inner) return;
 
         const targetY = -(targets[i] * digitH);
-        // Full spin: go through all digits multiple times then land on target
-        // Each full cycle = 10 digits. We spin 2 full cycles + target offset
         const fullCycleY = 10 * digitH;
-        const totalSpinY = -(fullCycleY * 2) + targetY; // 2 full spins + final position
-        const spinDelay = i * 0.4; // Stagger: each reel starts slightly later
+        const spinDelay = i * 0.35;
 
-        // Phase A: Fast continuous spin (constant speed)
-        tl.to(
-          inner,
-          {
-            y: -(fullCycleY * 2),
-            duration: 1.2 + i * 0.3,
-            ease: "none",
-          },
-          1.7 + spinDelay
-        );
+        tl.to(inner, {
+          y: -(fullCycleY * 2),
+          duration: 1.0 + i * 0.25,
+          ease: "none",
+        }, 1.55 + spinDelay);
 
-        // Phase B: Decelerate to final position
-        tl.to(
-          inner,
-          {
-            y: targetY,
-            duration: 0.8,
-            ease: "back.out(1.2)",
-          },
-          1.7 + spinDelay + 1.2 + i * 0.3
-        );
+        tl.to(inner, {
+          y: targetY,
+          duration: 0.7,
+          ease: "back.out(1.4)",
+        }, 1.55 + spinDelay + 1.0 + i * 0.25);
       });
 
-      // Phase 3: Landing flash when all reels stop
-      const allReelsStop = 1.7 + 0.8 + 1.2 + 2 * 0.3 + 0.8 + 0.8; // ~5.3s
+      // Phase 3: All reels landed — brief hold
+      const lastReelStop = 1.55 + 2 * 0.35 + 1.0 + 2 * 0.25 + 0.7; // ~4.15
 
+      // Bounce on land
+      tl.to(frameRef.current, {
+        scale: 1.03,
+        duration: 0.12,
+        ease: "power2.out",
+        yoyo: true,
+        repeat: 1,
+      }, lastReelStop + 0.05);
+
+      // Phase 4: Content fades out
       tl.to(
-        frameRef.current,
-        {
-          scale: 1.02,
-          duration: 0.15,
-          ease: "power2.out",
-          yoyo: true,
-          repeat: 1,
-        },
-        allReelsStop + 0.1
+        [frameRef.current, leverArmRef.current],
+        { opacity: 0, scale: 0.85, duration: 0.5, ease: "power3.in" },
+        lastReelStop + 0.4
       );
 
-      // Flash
+      // Phase 5: Black morph — circle appears at center, morphs into blob, expands to fill screen
+      tl.set(morphSvgRef.current, { opacity: 1 }, lastReelStop + 0.7);
+
       tl.fromTo(
-        flashRef.current,
-        { opacity: 0 },
-        { opacity: 0.6, duration: 0.1, yoyo: true, repeat: 1 },
-        allReelsStop + 0.1
+        morphRef.current,
+        { attr: { d: MORPH_PATHS[0] }, scale: 0 },
+        { scale: 1, duration: 0.4, ease: "back.out(1.5)", transformOrigin: "50% 50%" },
+        lastReelStop + 0.7
       );
 
-      // Phase 4: Everything scales up and fades, curtains split
+      // Morph to blob
       tl.to(
-        [frameRef.current, leverArmRef.current, labelRef.current],
-        {
-          scale: 0.9,
-          opacity: 0,
-          duration: 0.6,
-          ease: "power3.in",
-        },
-        allReelsStop + 0.6
+        morphRef.current,
+        { attr: { d: MORPH_PATHS[1] }, duration: 0.3, ease: "power2.inOut" },
+        lastReelStop + 1.0
       );
 
+      // Morph to rounded rect
       tl.to(
-        curtainLeftRef.current,
-        { xPercent: -100, duration: 0.8, ease: "power4.inOut" },
-        allReelsStop + 0.9
+        morphRef.current,
+        { attr: { d: MORPH_PATHS[2] }, duration: 0.3, ease: "power2.inOut" },
+        lastReelStop + 1.25
       );
+
+      // Morph to full screen
       tl.to(
-        curtainRightRef.current,
-        { xPercent: 100, duration: 0.8, ease: "power4.inOut" },
-        allReelsStop + 0.9
+        morphRef.current,
+        { attr: { d: MORPH_PATHS[3] }, duration: 0.35, ease: "power3.in" },
+        lastReelStop + 1.5
+      );
+
+      // Background behind morph fades to black to match site
+      tl.to(
+        bgRef.current,
+        { background: "hsl(0 0% 0%)", duration: 0.01 },
+        lastReelStop + 1.8
+      );
+
+      // Final: morph SVG fades out to reveal site
+      tl.to(
+        morphSvgRef.current,
+        { opacity: 0, duration: 0.6, ease: "power2.out" },
+        lastReelStop + 1.85
       );
     };
 
@@ -190,62 +193,48 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
       className="fixed inset-0 z-[100]"
       style={{ pointerEvents: "none" }}
     >
-      {/* Split curtains */}
+      {/* Background */}
       <div
-        ref={curtainLeftRef}
-        className="absolute top-0 left-0 w-1/2 h-full z-[1]"
-        style={{ background: "hsl(0 0% 96%)" }}
-      />
-      <div
-        ref={curtainRightRef}
-        className="absolute top-0 right-0 w-1/2 h-full z-[1]"
-        style={{ background: "hsl(0 0% 96%)" }}
+        ref={bgRef}
+        className="absolute inset-0 z-[1]"
+        style={{ background: "hsl(0 0% 100%)" }}
       />
 
-      {/* Flash overlay */}
-      <div
-        ref={flashRef}
-        className="absolute inset-0 z-[4]"
-        style={{ background: "hsl(0 0% 100%)", opacity: 0, pointerEvents: "none" }}
-      />
+      {/* Morph SVG overlay */}
+      <svg
+        ref={morphSvgRef}
+        className="absolute inset-0 w-full h-full z-[2]"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style={{ opacity: 0 }}
+      >
+        <path
+          ref={morphRef}
+          d={MORPH_PATHS[0]}
+          fill="hsl(0 0% 0%)"
+        />
+      </svg>
 
       {/* Center content */}
       <div className="absolute inset-0 z-[3] flex items-center justify-center">
         <div className="flex items-center gap-6 md:gap-10">
-          {/* Slot machine frame */}
+          {/* Slot frame */}
           <div ref={frameRef} style={{ opacity: 0 }}>
-            {/* Label above */}
-            <div ref={labelRef} className="text-center mb-4 md:mb-6" style={{ opacity: 0 }}>
-              <span
-                className="text-[9px] md:text-[11px] tracking-[0.6em] uppercase"
-                style={{
-                  color: "hsl(0 0% 50%)",
-                  fontFamily: "'Inter', sans-serif",
-                }}
-              >
-                Initializing
-              </span>
-            </div>
-
-            {/* Reels container */}
             <div
-              className="flex items-center gap-2 md:gap-3 px-6 md:px-10 py-4 md:py-6 rounded-2xl"
+              className="flex items-center gap-2 md:gap-3 px-6 md:px-10 py-4 md:py-6"
               style={{
-                background: "hsl(0 0% 100%)",
-                boxShadow: "0 1px 0 hsl(0 0% 88%), 0 4px 20px hsl(0 0% 0% / 0.06), 0 20px 60px hsl(0 0% 0% / 0.04)",
-                border: "1px solid hsl(0 0% 90%)",
+                border: "2px solid hsl(0 0% 0%)",
               }}
             >
               {[0, 1, 2].map((reelIdx) => (
                 <div
                   key={reelIdx}
                   ref={(el) => { if (el) reelRefs.current[reelIdx] = el; }}
-                  className="overflow-hidden rounded-lg"
+                  className="overflow-hidden"
                   style={{
                     height: digitH,
                     width: digitH * 0.65,
-                    background: "hsl(0 0% 97%)",
-                    border: "1px solid hsl(0 0% 91%)",
+                    borderRight: reelIdx < 2 ? "1px solid hsl(0 0% 85%)" : "none",
                   }}
                 >
                   <div className="reel-inner" style={{ willChange: "transform" }}>
@@ -255,9 +244,9 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
                         className="flex items-center justify-center font-bold select-none"
                         style={{
                           height: digitH,
-                          fontSize: digitH * 0.6,
+                          fontSize: digitH * 0.65,
                           fontFamily: "'Space Grotesk', sans-serif",
-                          color: "hsl(0 0% 10%)",
+                          color: "hsl(0 0% 0%)",
                           lineHeight: 1,
                         }}
                       >
@@ -267,19 +256,6 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
                   </div>
                 </div>
               ))}
-
-              {/* % symbol */}
-              <span
-                className="self-start mt-2 md:mt-3 ml-1"
-                style={{
-                  fontSize: digitH * 0.2,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  color: "hsl(0 0% 50%)",
-                  fontWeight: 600,
-                }}
-              >
-                %
-              </span>
             </div>
           </div>
 
@@ -289,15 +265,13 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
             className="relative flex flex-col items-center"
             style={{ opacity: 0 }}
           >
-            {/* Lever track */}
             <div
-              className="w-[3px] md:w-[4px] rounded-full"
+              className="w-[3px] md:w-[4px]"
               style={{
-                height: digitH * 1.2,
-                background: "linear-gradient(to bottom, hsl(0 0% 75%), hsl(0 0% 55%))",
+                height: digitH * 1.1,
+                background: "hsl(0 0% 0%)",
               }}
             />
-            {/* Lever knob */}
             <div
               ref={leverKnobRef}
               className="absolute top-0 left-1/2 -translate-x-1/2"
@@ -306,20 +280,18 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
               <div
                 className="rounded-full"
                 style={{
-                  width: digitH * 0.28,
-                  height: digitH * 0.28,
-                  background: "radial-gradient(circle at 35% 35%, hsl(0 0% 30%), hsl(0 0% 8%))",
-                  boxShadow: "0 2px 8px hsl(0 0% 0% / 0.2)",
+                  width: digitH * 0.26,
+                  height: digitH * 0.26,
+                  background: "hsl(0 0% 0%)",
                 }}
               />
             </div>
-            {/* Base */}
             <div
               className="rounded-full mt-1"
               style={{
-                width: digitH * 0.18,
-                height: digitH * 0.18,
-                background: "hsl(0 0% 75%)",
+                width: digitH * 0.14,
+                height: digitH * 0.14,
+                background: "hsl(0 0% 0%)",
               }}
             />
           </div>
