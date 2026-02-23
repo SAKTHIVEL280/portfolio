@@ -135,37 +135,34 @@ const ManifestoSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Loopy, flowing path with actual loops, figure-eights, and smooth curves
+  // Centered, loopy flowing path with elegant curves and loops
   const svgPath = `
-    M -10 40
-    C 60 10, 140 10, 200 60
-    C 260 110, 220 200, 160 220
-    C 100 240, 60 180, 100 140
-    C 140 100, 220 120, 260 180
-    Q 300 240, 340 200
-    C 380 160, 420 100, 400 180
-    C 380 260, 300 300, 260 340
-    C 220 380, 280 440, 340 420
-    C 400 400, 440 340, 460 400
-    Q 480 460, 440 500
-    C 400 540, 320 520, 280 560
-    C 240 600, 300 680, 360 660
-    C 420 640, 460 580, 480 640
-    C 500 700, 440 760, 380 780
-    Q 320 800, 280 840
-    C 240 880, 300 940, 360 920
-    C 420 900, 460 840, 480 900
-    C 500 960, 440 1020, 380 1040
-    C 320 1060, 240 1020, 220 1080
-    C 200 1140, 260 1200, 340 1180
-    Q 420 1160, 460 1220
-    C 500 1280, 440 1340, 380 1360
-    C 320 1380, 240 1340, 200 1400
-    C 160 1460, 220 1540, 300 1540
-    C 380 1540, 440 1480, 480 1540
-    Q 520 1600, 460 1660
-    C 400 1720, 300 1700, 240 1740
-    C 180 1780, 240 1840, 340 1820
+    M 260 20
+    C 320 60, 380 120, 340 180
+    C 300 240, 200 200, 180 260
+    C 160 320, 240 380, 320 360
+    C 400 340, 420 280, 380 220
+    C 340 160, 240 180, 200 240
+    C 160 300, 200 400, 280 420
+    Q 360 440, 340 520
+    C 320 600, 220 580, 180 640
+    C 140 700, 200 780, 280 780
+    C 360 780, 400 720, 380 660
+    C 360 600, 280 580, 240 640
+    C 200 700, 240 800, 320 820
+    Q 400 840, 380 920
+    C 360 1000, 260 980, 220 1040
+    C 180 1100, 240 1180, 320 1180
+    C 400 1180, 440 1120, 400 1060
+    C 360 1000, 260 1020, 220 1080
+    C 180 1140, 220 1240, 300 1260
+    Q 380 1280, 360 1360
+    C 340 1440, 240 1420, 200 1480
+    C 160 1540, 220 1620, 300 1620
+    C 380 1620, 420 1560, 380 1500
+    C 340 1440, 260 1460, 240 1540
+    C 220 1620, 280 1720, 340 1740
+    Q 400 1760, 360 1840
   `;
 
   return (
@@ -178,14 +175,15 @@ const ManifestoSection = () => {
       {/* SVG flowing loopy line */}
       <svg
         ref={svgRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute pointer-events-none"
+        style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", height: "100%" }}
         viewBox="0 0 520 1860"
-        preserveAspectRatio="none"
+        preserveAspectRatio="xMidYMid meet"
         fill="none"
       >
         <defs>
           <filter id="lineGlow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feGaussianBlur stdDeviation="4" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -197,25 +195,25 @@ const ManifestoSection = () => {
         <path
           ref={glowRef}
           d={svgPath}
-          stroke="hsl(0 0% 25%)"
-          strokeWidth="8"
+          stroke="hsl(0 0% 30%)"
+          strokeWidth="10"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          opacity="0.2"
+          opacity="0.35"
           filter="url(#lineGlow)"
         />
 
-        {/* Main line — thicker */}
+        {/* Main line */}
         <path
           ref={pathRef}
           d={svgPath}
-          stroke="hsl(0 0% 22%)"
+          stroke="hsl(0 0% 35%)"
           strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          opacity="0.5"
+          opacity="0.8"
         />
       </svg>
 
