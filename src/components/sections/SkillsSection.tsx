@@ -1,48 +1,62 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Matter from "matter-js";
-import FallingText from "../FallingText";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const allSkills = [
-  { label: "Python", type: "core" },
-  { label: "C", type: "core" },
-  { label: "Java", type: "core" },
-  { label: "Applied AI", type: "core" },
-  { label: "AI Automations", type: "core" },
-  { label: "SQL", type: "core" },
-  { label: "Firebase", type: "core" },
-  { label: "Supabase", type: "core" },
-  { label: "Vercel", type: "core" },
-  { label: "Context Engineering", type: "core" },
-  { label: "AI Designing", type: "core" },
-  { label: "JavaScript", type: "augmented" },
-  { label: "React", type: "augmented" },
-  { label: "Next.js", type: "augmented" },
-  { label: "Tauri", type: "augmented" },
-] as const;
+const coreSkills = [
+  "Python", "C", "Java", "SQL", "Firebase", "Supabase", "Vercel"
+];
+
+const aiSkills = [
+  "Applied AI", "AI Automations", "Context Engineering", "AI Designing"
+];
+
+const augmentedSkills = [
+  "JavaScript", "React", "Next.js", "Tauri"
+];
 
 const SkillsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const curveRef = useRef<HTMLDivElement>(null);
-  const playgroundRef = useRef<HTMLDivElement>(null);
+  const svgPathRef = useRef<SVGPathElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
-  // Curve flattening on scroll
+  // SVG curve morph on scroll
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (curveRef.current) {
+      if (svgPathRef.current) {
         gsap.fromTo(
-          curveRef.current,
-          { borderRadius: "50% 50% 0 0 / 100px 100px 0 0" },
+          svgPathRef.current,
+          { attr: { d: "M0,80 Q360,160 720,80 Q1080,0 1440,80 L1440,200 L0,200 Z" } },
           {
-            borderRadius: "0% 0% 0 0 / 0px 0px 0 0",
+            attr: { d: "M0,180 Q360,180 720,180 Q1080,180 1440,180 L1440,200 L0,200 Z" },
+            ease: "none",
             scrollTrigger: {
               trigger: sectionRef.current,
+              start: "top 90%",
+              end: "top 30%",
+              scrub: 0.6,
+            },
+          }
+        );
+      }
+
+      // Stagger in skill cards
+      if (cardsRef.current) {
+        const items = cardsRef.current.querySelectorAll(".skill-card");
+        gsap.fromTo(
+          items,
+          { y: 60, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            stagger: 0.04,
+            duration: 0.6,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: cardsRef.current,
               start: "top 80%",
-              end: "top 20%",
-              scrub: true,
+              toggleActions: "play none none none",
             },
           }
         );
@@ -51,176 +65,163 @@ const SkillsSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Single Matter.js engine for the pill playground
-  useEffect(() => {
-    const container = playgroundRef.current;
-    if (!container) return;
-
-    const { Engine, World, Bodies, Body, Mouse, MouseConstraint, Runner, Bounds } = Matter;
-
-    const width = container.offsetWidth;
-    const height = 500;
-
-    const engine = Engine.create({ gravity: { x: 0, y: 0 } });
-
-    // Walls: floor, left, right (no ceiling so pills feel open at top)
-    const wallOpts = { isStatic: true, render: { visible: false } };
-    World.add(engine.world, [
-      Bodies.rectangle(width / 2, height + 25, width, 50, wallOpts),
-      Bodies.rectangle(-25, height / 2, 50, height * 2, wallOpts),
-      Bodies.rectangle(width + 25, height / 2, 50, height * 2, wallOpts),
-    ]);
-
-    // Create pill bodies (initially static, floating in grid)
-    const pillEls: HTMLDivElement[] = [];
-    const pillBodies: Matter.Body[] = [];
-    const dropped = new Set<number>();
-
-    allSkills.forEach((skill, i) => {
-      // Create DOM element
-      const el = document.createElement("div");
-      el.textContent = skill.label;
-      el.className = "absolute px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap select-none";
-      el.style.fontFamily = "'Space Grotesk', sans-serif";
-      el.style.background = skill.type === "augmented" ? "hsl(0 0% 8%)" : "hsl(0 0% 95%)";
-      el.style.color = skill.type === "augmented" ? "hsl(0 0% 92%)" : "hsl(0 0% 8%)";
-      el.style.border = skill.type === "core" ? "1px solid hsl(0 0% 70%)" : "none";
-      el.style.cursor = "grab";
-      el.style.pointerEvents = "none"; // We'll handle interaction through container
-      el.style.willChange = "transform";
-      container.appendChild(el);
-
-      // Measure pill dimensions
-      const rect = el.getBoundingClientRect();
-      const pillW = rect.width;
-      const pillH = rect.height;
-
-      // Grid placement
-      const cols = Math.min(5, Math.floor(width / 200));
-      const colWidth = (width - 80) / cols;
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      const x = 60 + col * colWidth + (Math.random() * 30);
-      const y = 50 + row * 60;
-
-      const body = Bodies.rectangle(x, y, pillW, pillH, {
-        chamfer: { radius: 20 },
-        restitution: 0.6,
-        friction: 0.1,
-        frictionAir: 0.03,
-        isStatic: true,
-      });
-
-      pillEls.push(el);
-      pillBodies.push(body);
-    });
-
-    World.add(engine.world, pillBodies);
-
-    // Mouse constraint for dragging (attached to container)
-    const mouse = Mouse.create(container);
-    const mc = MouseConstraint.create(engine, {
-      mouse,
-      constraint: { stiffness: 0.2, render: { visible: false } },
-    });
-    World.add(engine.world, mc);
-
-    // Hover detection via container mousemove - drop pills when cursor touches them
-    let gravityEnabled = false;
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
-      pillBodies.forEach((body, i) => {
-        if (!body.isStatic || dropped.has(i)) return;
-        if (Bounds.contains(body.bounds, { x: mx, y: my })) {
-          dropped.add(i);
-          if (!gravityEnabled) {
-            engine.gravity.y = 1.2;
-            gravityEnabled = true;
-          }
-          Body.setStatic(body, false);
-          Body.applyForce(body, body.position, {
-            x: (Math.random() - 0.5) * 0.03,
-            y: 0.01,
-          });
-        }
-      });
-    };
-    container.addEventListener("mousemove", onMouseMove);
-
-    // Run engine
-    const runner = Runner.create();
-    Runner.run(runner, engine);
-
-    // RAF sync DOM positions
-    let rafId: number;
-    const sync = () => {
-      pillBodies.forEach((body, i) => {
-        const el = pillEls[i];
-        if (!el) return;
-        const w = el.offsetWidth;
-        const h = el.offsetHeight;
-        el.style.transform = `translate(${body.position.x - w / 2}px, ${body.position.y - h / 2}px) rotate(${body.angle}rad)`;
-      });
-      rafId = requestAnimationFrame(sync);
-    };
-    rafId = requestAnimationFrame(sync);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      container.removeEventListener("mousemove", onMouseMove);
-      Runner.stop(runner);
-      World.clear(engine.world, false);
-      Engine.clear(engine);
-      // Clean up dynamically created pill elements
-      pillEls.forEach((el) => el.remove());
-    };
-  }, []);
-
   return (
     <section ref={sectionRef} id="skills" className="relative">
-      <div
-        ref={curveRef}
-        className="w-full overflow-hidden"
-        style={{
-          background: "hsl(var(--section-light))",
-          borderRadius: "50% 50% 0 0 / 100px 100px 0 0",
-        }}
-      >
-        <div className="px-8 md:px-16 pt-32 pb-8">
-          <h2
-            className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(0 0% 4%)" }}
-          >
-            Skills & Stack
-          </h2>
-          <p className="text-lg mb-16" style={{ color: "hsl(0 0% 40%)", fontFamily: "'Inter', sans-serif" }}>
-            Hover each pill to drop it. Drag, throw, and play.
-          </p>
-        </div>
-
-        {/* Physics pill playground */}
-        <div
-          ref={playgroundRef}
-          className="relative mx-8 md:mx-16 mb-16"
-          style={{ height: "500px", cursor: "grab", overflow: "hidden" }}
-        />
-
-        {/* Falling Text */}
-        <div className="mx-8 md:mx-16 mb-16" style={{ height: "400px" }}>
-          <FallingText
-            text="I don't just write code I craft experiences that blur the line between design and engineering building systems that feel alive and purposeful"
-            highlightWords={["craft", "experiences", "design", "engineering", "alive", "purposeful"]}
-            highlightClass="font-bold"
-            trigger="scroll"
-            backgroundColor="transparent"
-            wireframes={false}
-            gravity={0.56}
-            fontSize="2rem"
-            mouseConstraintStiffness={0.9}
+      {/* SVG Morphing Curve */}
+      <div className="relative w-full" style={{ marginTop: "-1px" }}>
+        <svg
+          viewBox="0 0 1440 200"
+          className="w-full block"
+          preserveAspectRatio="none"
+          style={{ height: "clamp(80px, 12vw, 200px)" }}
+        >
+          <path
+            ref={svgPathRef}
+            d="M0,80 Q360,160 720,80 Q1080,0 1440,80 L1440,200 L0,200 Z"
+            fill="hsl(0 0% 100%)"
           />
+        </svg>
+      </div>
+
+      {/* Main Content */}
+      <div
+        className="w-full"
+        style={{ background: "hsl(0 0% 100%)" }}
+      >
+        <div className="px-8 md:px-16 lg:px-24 pb-32 pt-8">
+          {/* Header */}
+          <div className="mb-20">
+            <p
+              className="text-xs tracking-[0.3em] uppercase mb-4"
+              style={{ color: "hsl(0 0% 50%)", fontFamily: "'Inter', sans-serif" }}
+            >
+              What I work with
+            </p>
+            <h2
+              className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[0.9] tracking-tight"
+              style={{ color: "hsl(0 0% 4%)" }}
+            >
+              Skills &<br />Stack
+            </h2>
+          </div>
+
+          {/* Skill Groups */}
+          <div ref={cardsRef} className="space-y-16">
+            {/* Core */}
+            <div>
+              <h3
+                className="text-sm tracking-[0.2em] uppercase mb-6 pb-3"
+                style={{
+                  color: "hsl(0 0% 40%)",
+                  fontFamily: "'Inter', sans-serif",
+                  borderBottom: "1px solid hsl(0 0% 88%)",
+                }}
+              >
+                Core Languages & Platforms
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {coreSkills.map((skill) => (
+                  <div
+                    key={skill}
+                    className="skill-card group relative px-6 py-3 rounded-full cursor-default transition-all duration-300"
+                    style={{
+                      border: "1px solid hsl(0 0% 85%)",
+                      color: "hsl(0 0% 15%)",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                    }}
+                  >
+                    <span className="relative z-10 text-sm md:text-base font-medium transition-colors duration-300 group-hover:text-white">
+                      {skill}
+                    </span>
+                    <div
+                      className="absolute inset-0 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 ease-out"
+                      style={{ background: "hsl(0 0% 8%)" }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI */}
+            <div>
+              <h3
+                className="text-sm tracking-[0.2em] uppercase mb-6 pb-3"
+                style={{
+                  color: "hsl(0 0% 40%)",
+                  fontFamily: "'Inter', sans-serif",
+                  borderBottom: "1px solid hsl(0 0% 88%)",
+                }}
+              >
+                AI & Intelligence
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {aiSkills.map((skill) => (
+                  <div
+                    key={skill}
+                    className="skill-card group relative px-6 py-3 rounded-full cursor-default transition-all duration-300"
+                    style={{
+                      background: "hsl(0 0% 8%)",
+                      color: "hsl(0 0% 95%)",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                    }}
+                  >
+                    <span className="relative z-10 text-sm md:text-base font-medium transition-colors duration-300 group-hover:text-black">
+                      {skill}
+                    </span>
+                    <div
+                      className="absolute inset-0 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 ease-out"
+                      style={{ background: "hsl(0 0% 92%)", border: "1px solid hsl(0 0% 80%)" }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Augmented */}
+            <div>
+              <h3
+                className="text-sm tracking-[0.2em] uppercase mb-6 pb-3"
+                style={{
+                  color: "hsl(0 0% 40%)",
+                  fontFamily: "'Inter', sans-serif",
+                  borderBottom: "1px solid hsl(0 0% 88%)",
+                }}
+              >
+                AI-Augmented
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {augmentedSkills.map((skill) => (
+                  <div
+                    key={skill}
+                    className="skill-card group relative px-6 py-3 rounded-full cursor-default transition-all duration-300"
+                    style={{
+                      border: "1px solid hsl(0 0% 85%)",
+                      color: "hsl(0 0% 15%)",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                    }}
+                  >
+                    <span className="relative z-10 text-sm md:text-base font-medium transition-colors duration-300 group-hover:text-white">
+                      {skill}
+                    </span>
+                    <div
+                      className="absolute inset-0 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 ease-out"
+                      style={{ background: "hsl(0 0% 8%)" }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom statement */}
+          <div className="mt-24 max-w-2xl">
+            <p
+              className="text-2xl md:text-3xl font-medium leading-relaxed"
+              style={{ color: "hsl(0 0% 20%)", fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              I don't just write code — I craft experiences that blur the line between design and engineering.
+            </p>
+          </div>
         </div>
       </div>
     </section>
