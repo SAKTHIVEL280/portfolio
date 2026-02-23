@@ -5,9 +5,9 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const columnsRef = useRef<HTMLDivElement[]>([]);
   const wordRef = useRef<HTMLDivElement>(null);
+  const curtainTopRef = useRef<HTMLDivElement>(null);
+  const curtainBottomRef = useRef<HTMLDivElement>(null);
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -51,32 +51,39 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         0
       );
 
-      // Fade out counter + word
+      // Fade out counter + word + progress
       tl.to(
         [wordRef.current, counterRef.current?.parentElement, progressRef.current?.parentElement],
         {
           opacity: 0,
-          scale: 0.9,
-          duration: 0.6,
-          stagger: 0.05,
+          scale: 0.92,
+          duration: 0.5,
+          stagger: 0.04,
           ease: "power3.in",
         },
-        2.2
+        2.15
       );
 
-      // Column wipe reveal — 5 columns slide up staggered
-      const numCols = 5;
-      for (let i = 0; i < numCols; i++) {
-        tl.to(
-          columnsRef.current[i],
-          {
-            yPercent: -100,
-            duration: 0.9,
-            ease: "power4.inOut",
-          },
-          2.7 + i * 0.08
-        );
-      }
+      // Curtain split — top slides up, bottom slides down
+      tl.to(
+        curtainTopRef.current,
+        {
+          yPercent: -100,
+          duration: 1,
+          ease: "power4.inOut",
+        },
+        2.6
+      );
+
+      tl.to(
+        curtainBottomRef.current,
+        {
+          yPercent: 100,
+          duration: 1,
+          ease: "power4.inOut",
+        },
+        2.6
+      );
     }, containerRef);
 
     return () => ctx.revert();
@@ -84,11 +91,10 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <div ref={containerRef} className="fixed inset-0 z-[100]">
-      {/* Full overlay with content */}
+      {/* Content layer — centered */}
       <div
-        ref={overlayRef}
-        className="absolute inset-0 flex flex-col items-center justify-center"
-        style={{ background: "hsl(0 0% 2%)" }}
+        className="absolute inset-0 flex flex-col items-center justify-center z-[3]"
+        style={{ pointerEvents: "none" }}
       >
         {/* Word */}
         <div ref={wordRef} className="mb-8" style={{ opacity: 0 }}>
@@ -131,20 +137,19 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         </div>
       </div>
 
-      {/* Column wipe overlays */}
-      {[0, 1, 2, 3, 4].map((i) => (
-        <div
-          key={i}
-          ref={(el) => { if (el) columnsRef.current[i] = el; }}
-          className="absolute top-0 bottom-0"
-          style={{
-            left: `${i * 20}%`,
-            width: "20%",
-            background: "hsl(0 0% 2%)",
-            zIndex: 2,
-          }}
-        />
-      ))}
+      {/* Top curtain */}
+      <div
+        ref={curtainTopRef}
+        className="absolute top-0 left-0 w-full h-1/2"
+        style={{ background: "hsl(0 0% 2%)", zIndex: 2 }}
+      />
+
+      {/* Bottom curtain */}
+      <div
+        ref={curtainBottomRef}
+        className="absolute bottom-0 left-0 w-full h-1/2"
+        style={{ background: "hsl(0 0% 2%)", zIndex: 2 }}
+      />
     </div>
   );
 };
