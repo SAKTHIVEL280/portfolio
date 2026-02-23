@@ -27,15 +27,15 @@ const SkillsSection = () => {
       if (svgPathRef.current) {
         gsap.fromTo(
           svgPathRef.current,
-          { attr: { d: "M0,80 Q360,160 720,80 Q1080,0 1440,80 L1440,200 L0,200 Z" } },
+          { attr: { d: "M0,0 C240,400 480,-100 720,300 C960,-50 1200,450 1440,0 L1440,500 L0,500 Z" } },
           {
-            attr: { d: "M0,180 Q360,180 720,180 Q1080,180 1440,180 L1440,200 L0,200 Z" },
-            ease: "none",
+            attr: { d: "M0,480 C240,490 480,485 720,490 C960,485 1200,490 1440,480 L1440,500 L0,500 Z" },
+            ease: "power2.inOut",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 90%",
-              end: "top 30%",
-              scrub: 0.6,
+              start: "top 100%",
+              end: "top 10%",
+              scrub: 0.8,
             },
           }
         );
@@ -70,14 +70,14 @@ const SkillsSection = () => {
       {/* SVG Morphing Curve */}
       <div className="relative w-full" style={{ marginTop: "-1px" }}>
         <svg
-          viewBox="0 0 1440 200"
+          viewBox="0 0 1440 500"
           className="w-full block"
           preserveAspectRatio="none"
-          style={{ height: "clamp(80px, 12vw, 200px)" }}
+          style={{ height: "clamp(200px, 30vw, 500px)" }}
         >
           <path
             ref={svgPathRef}
-            d="M0,80 Q360,160 720,80 Q1080,0 1440,80 L1440,200 L0,200 Z"
+            d="M0,0 C240,400 480,-100 720,300 C960,-50 1200,450 1440,0 L1440,500 L0,500 Z"
             fill="hsl(0 0% 100%)"
           />
         </svg>
