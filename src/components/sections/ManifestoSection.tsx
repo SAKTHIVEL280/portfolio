@@ -97,14 +97,23 @@ const renderLineWithHighlights = (line: string) => {
     for (const word of sortedHighlights) {
       const idx = remaining.indexOf(word);
       if (idx === 0) {
-        result.push({ text: word, highlighted: true });
-        remaining = remaining.slice(word.length);
+        // Include trailing punctuation (. , ; : ! ?) in the highlight
+        let end = word.length;
+        while (end < remaining.length && /[.,;:!?]/.test(remaining[end])) {
+          end++;
+        }
+        result.push({ text: remaining.slice(0, end), highlighted: true });
+        remaining = remaining.slice(end);
         found = true;
         break;
       } else if (idx > 0) {
         result.push({ text: remaining.slice(0, idx), highlighted: false });
-        result.push({ text: word, highlighted: true });
-        remaining = remaining.slice(idx + word.length);
+        let end = idx + word.length;
+        while (end < remaining.length && /[.,;:!?]/.test(remaining[end])) {
+          end++;
+        }
+        result.push({ text: remaining.slice(idx, end), highlighted: true });
+        remaining = remaining.slice(end);
         found = true;
         break;
       }
