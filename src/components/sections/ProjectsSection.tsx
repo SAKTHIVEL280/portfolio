@@ -55,7 +55,7 @@ const ProjectsSection = () => {
       }
 
       // Horizontal scroll pinning
-      const hScrollTrigger = ScrollTrigger.create({
+      ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: () => `+=${totalWidth}`,
@@ -65,29 +65,55 @@ const ProjectsSection = () => {
         animation: gsap.to(track, { x: -totalWidth, ease: "none" }),
       });
 
-      // Card reveal animations — scrub-based so they animate every scroll direction
-      const totalCards = projects.length;
+      // Card reveal — each card animates individually based on its own visibility
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
-        const startPct = (i + 0.2) / (totalCards + 1);
-        const endPct = (i + 0.9) / (totalCards + 1);
 
-        gsap.fromTo(
-          card,
-          { y: 80, opacity: 0, scale: 0.92 },
-          {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: () => `top+=${totalWidth * startPct} top`,
-              end: () => `top+=${totalWidth * endPct} top`,
-              scrub: 0.6,
-            },
-          }
-        );
+        // Use the card itself as trigger within the horizontal scroll context
+        gsap.set(card, { opacity: 0, y: 60, scale: 0.94 });
+
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: () => {
+            // Calculate when this card enters the viewport
+            const cardLeft = card.offsetLeft;
+            const viewportWidth = window.innerWidth;
+            // Card becomes visible when its left edge scrolls into view
+            const scrollNeeded = Math.max(0, cardLeft - viewportWidth + 100);
+            return `top+=${scrollNeeded} top`;
+          },
+          end: () => {
+            const cardLeft = card.offsetLeft;
+            const viewportWidth = window.innerWidth;
+            const scrollNeeded = Math.max(0, cardLeft - viewportWidth + 100);
+            return `top+=${scrollNeeded + viewportWidth * 0.4} top`;
+          },
+          scrub: 0.5,
+          onEnter: () => {
+            gsap.to(card, {
+              opacity: 1, y: 0, scale: 1,
+              duration: 0.8, ease: "power3.out",
+            });
+          },
+          onLeave: () => {
+            gsap.to(card, {
+              opacity: 0.6, scale: 0.96,
+              duration: 0.4, ease: "power2.in",
+            });
+          },
+          onEnterBack: () => {
+            gsap.to(card, {
+              opacity: 1, y: 0, scale: 1,
+              duration: 0.6, ease: "power3.out",
+            });
+          },
+          onLeaveBack: () => {
+            gsap.to(card, {
+              opacity: 0, y: 60, scale: 0.94,
+              duration: 0.4, ease: "power2.in",
+            });
+          },
+        });
       });
 
       // Parallax on images
@@ -105,27 +131,29 @@ const ProjectsSection = () => {
         });
       });
 
-      // Title slide-up — scrub-based
+      // Title slide-up — per card
       titleRefs.current.forEach((titleEl, i) => {
         if (!titleEl) return;
-        const startPct = (i + 0.4) / (totalCards + 1);
-        const endPct = (i + 0.85) / (totalCards + 1);
+        gsap.set(titleEl, { y: 30, opacity: 0 });
 
-        gsap.fromTo(
-          titleEl,
-          { y: 40, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: () => `top+=${totalWidth * startPct} top`,
-              end: () => `top+=${totalWidth * endPct} top`,
-              scrub: 0.6,
-            },
-          }
-        );
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: () => {
+            const card = cardRefs.current[i];
+            if (!card) return "top top";
+            const scrollNeeded = Math.max(0, card.offsetLeft - window.innerWidth + 200);
+            return `top+=${scrollNeeded} top`;
+          },
+          onEnter: () => {
+            gsap.to(titleEl, { y: 0, opacity: 1, duration: 0.7, delay: 0.15, ease: "power3.out" });
+          },
+          onLeaveBack: () => {
+            gsap.to(titleEl, { y: 30, opacity: 0, duration: 0.3, ease: "power2.in" });
+          },
+          onEnterBack: () => {
+            gsap.to(titleEl, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" });
+          },
+        });
       });
     }, sectionRef);
 
