@@ -83,11 +83,11 @@ const FooterSection = () => {
               <Magnetic strength={30} className="inline-block">
                 <a
                   href="mailto:sakthivel.hsr06@gmail.com"
-                  className="text-xl md:text-3xl lg:text-4xl font-medium border-b-2 border-current pb-2 hover:opacity-60 transition-opacity duration-300 inline-flex items-center gap-3"
+                  className="group text-xl md:text-3xl lg:text-4xl font-medium border-b-2 border-current pb-2 hover:opacity-60 transition-opacity duration-300 inline-flex items-center gap-3"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   sakthivel.hsr06@gmail.com
-                  <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+                  <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 transition-transform duration-300 group-hover:rotate-45" />
                 </a>
               </Magnetic>
             </div>
