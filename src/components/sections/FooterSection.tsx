@@ -16,7 +16,6 @@ const FooterSection = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // SVG morph for contact section — blob style
       if (morphPath1.current) {
         gsap.fromTo(
           morphPath1.current,
@@ -55,10 +54,7 @@ const FooterSection = () => {
           headingRef.current,
           { y: 60, opacity: 0 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 1.2,
-            ease: "power3.out",
+            y: 0, opacity: 1, duration: 1.2, ease: "power3.out",
             scrollTrigger: {
               trigger: headingRef.current,
               start: "top 85%",
@@ -73,11 +69,7 @@ const FooterSection = () => {
           emailRef.current,
           { y: 40, opacity: 0 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            delay: 0.2,
-            ease: "power3.out",
+            y: 0, opacity: 1, duration: 1, delay: 0.2, ease: "power3.out",
             scrollTrigger: {
               trigger: emailRef.current,
               start: "top 90%",
@@ -98,7 +90,7 @@ const FooterSection = () => {
       className="relative"
       style={{ background: "hsl(0 0% 100%)" }}
     >
-      {/* SVG Morph transition — different style (blob/organic) */}
+      {/* SVG Morph transition */}
       <div className="relative w-full" style={{ marginTop: "-1px" }}>
         <svg
           viewBox="0 0 1440 300"
@@ -119,11 +111,16 @@ const FooterSection = () => {
         </svg>
       </div>
 
-      {/* Curved dark container */}
+      {/* Curved dark container with rounded top edges */}
       <div
         ref={contentRef}
         className="relative min-h-[80vh] flex flex-col justify-end px-8 md:px-16 pb-8 md:pb-16"
-        style={{ background: "hsl(0 0% 4%)", color: "hsl(0 0% 96%)" }}
+        style={{
+          background: "hsl(0 0% 4%)",
+          color: "hsl(0 0% 96%)",
+          borderRadius: "32px 32px 0 0",
+          marginTop: "-2px",
+        }}
       >
         <div className="flex-1 flex items-center">
           <div>
@@ -154,8 +151,8 @@ const FooterSection = () => {
         {/* Bottom bar */}
         <div className="flex justify-center items-center pt-8 border-t" style={{ borderColor: "hsl(0 0% 30%)" }}>
           <span
-            className="text-base md:text-lg tracking-wide"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(0 0% 90%)" }}
+            className="text-lg md:text-xl tracking-wide"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(0 0% 95%)" }}
           >
             Built with only AI — and intention.
           </span>

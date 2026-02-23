@@ -4,7 +4,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Words to highlight with animated background
 const highlightWords = new Set([
   "intuition", "systems", "ship", "production", "live", "faster",
   "No ceremony", "works", "question", "product"
@@ -50,7 +49,6 @@ const scrambleLine = (el: HTMLElement, finalText: string) => {
   let iteration = 0;
   const maxIterations = 10;
   const interval = setInterval(() => {
-    // Only scramble the text nodes, not the highlighted spans
     const spans = el.querySelectorAll<HTMLElement>("[data-word]");
     if (spans.length > 0) {
       spans.forEach((span) => {
@@ -77,7 +75,6 @@ const scrambleLine = (el: HTMLElement, finalText: string) => {
     iteration++;
     if (iteration > maxIterations) {
       clearInterval(interval);
-      // Restore the original HTML
       if (spans.length > 0) {
         spans.forEach((span) => {
           span.textContent = span.getAttribute("data-word") || "";
@@ -89,17 +86,10 @@ const scrambleLine = (el: HTMLElement, finalText: string) => {
   }, 30);
 };
 
-// Renders line with highlighted words wrapped in spans
 const renderLineWithHighlights = (line: string) => {
   if (line === "") return null;
 
-  // Check for multi-word highlights first
-  let parts: (string | { text: string; highlighted: boolean })[] = [line];
-
-  // Process highlights
-  const processed: (string | { text: string; highlighted: boolean })[] = [];
   const sortedHighlights = Array.from(highlightWords).sort((a, b) => b.length - a.length);
-
   let remaining = line;
   const result: { text: string; highlighted: boolean }[] = [];
 
@@ -132,21 +122,19 @@ const renderLineWithHighlights = (line: string) => {
         key={i}
         data-word={part.text}
         className="highlight-word"
-        style={{
-          position: "relative",
-          display: "inline",
-        }}
+        style={{ position: "relative", display: "inline" }}
       >
         <span
           className="highlight-bg"
           style={{
             position: "absolute",
-            inset: "-2px -6px",
-            borderRadius: "4px",
-            background: "hsl(0 0% 22%)",
+            inset: "-4px -8px",
+            borderRadius: "6px",
+            background: "hsl(0 0% 20%)",
             transform: "scaleX(0)",
             transformOrigin: "left",
             zIndex: 0,
+            transition: "none",
           }}
         />
         <span style={{ position: "relative", zIndex: 1 }}>{part.text}</span>
@@ -159,7 +147,6 @@ const renderLineWithHighlights = (line: string) => {
 
 const ManifestoSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const blockRefs = useRef<HTMLDivElement[]>([]);
 
@@ -172,17 +159,17 @@ const ManifestoSection = () => {
     gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
 
     const ctx = gsap.context(() => {
-      const drawTl = gsap.timeline({
+      // Draw SVG line on scroll
+      gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top 60%",
           end: "bottom 30%",
           scrub: 0.6,
         },
-      });
+      }).to(path, { strokeDashoffset: 0, ease: "none" }, 0);
 
-      drawTl.to(path, { strokeDashoffset: 0, ease: "none" }, 0);
-
+      // Text blocks with highlights
       blockRefs.current.forEach((block, blockIdx) => {
         if (!block) return;
         const lines = block.querySelectorAll<HTMLElement>(".manifesto-line");
@@ -205,16 +192,17 @@ const ManifestoSection = () => {
                 ease: "power3.out",
                 onStart: () => {
                   scrambleLine(line, text);
-                  // Animate highlight backgrounds
-                  const highlightBgs = line.querySelectorAll<HTMLElement>(".highlight-bg");
-                  highlightBgs.forEach((bg, hIdx) => {
-                    gsap.to(bg, {
+                  // Animate ALL highlight backgrounds in this line
+                  const bgs = line.querySelectorAll<HTMLElement>(".highlight-bg");
+                  if (bgs.length > 0) {
+                    gsap.to(bgs, {
                       scaleX: 1,
-                      duration: 0.6,
-                      delay: i * 0.15 + 0.3 + hIdx * 0.1,
+                      duration: 0.7,
+                      delay: 0.4,
+                      stagger: 0.1,
                       ease: "power3.out",
                     });
-                  });
+                  }
                 },
               });
             });
@@ -227,9 +215,8 @@ const ManifestoSection = () => {
               stagger: 0.04,
               ease: "power2.in",
             });
-            // Reset highlights
-            const highlightBgs = block.querySelectorAll<HTMLElement>(".highlight-bg");
-            gsap.set(highlightBgs, { scaleX: 0 });
+            const bgs = block.querySelectorAll<HTMLElement>(".highlight-bg");
+            gsap.set(bgs, { scaleX: 0 });
           },
         });
       });
@@ -238,44 +225,30 @@ const ManifestoSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Clean elegant path — starts from top-left, smooth flowing S-curves
+  // Simple elegant path — starts top-left, smooth flowing curves, NO tight loops
   const svgPath = `
-    M 0 40
-    C 60 40, 140 60, 200 120
-    C 280 200, 350 280, 420 260
-    C 500 240, 520 160, 480 100
-    C 440 40, 340 60, 300 140
-    C 260 220, 280 340, 380 380
-    C 480 420, 520 360, 500 280
-    C 480 200, 380 160, 300 220
-    C 200 300, 120 420, 160 520
-    C 200 620, 360 640, 440 580
-    C 520 520, 480 440, 400 420
-    C 300 400, 160 480, 120 580
-    C 80 680, 180 780, 300 780
-    C 420 780, 500 700, 480 620
-    C 460 540, 360 500, 280 560
-    C 180 630, 100 740, 140 840
-    C 180 940, 320 980, 420 940
-    C 520 900, 500 820, 420 800
-    C 320 780, 180 840, 140 940
-    C 100 1040, 200 1140, 340 1140
-    C 480 1140, 520 1060, 480 980
-    C 440 900, 320 880, 240 940
-    C 140 1020, 80 1140, 140 1240
-    C 200 1340, 360 1360, 440 1300
-    C 520 1240, 480 1160, 400 1160
-    C 300 1160, 160 1240, 140 1340
-    C 120 1440, 240 1540, 380 1520
-    C 480 1500, 520 1420, 460 1380
-    C 380 1340, 240 1400, 200 1500
-    C 160 1600, 280 1700, 400 1680
-    C 500 1660, 520 1580, 460 1540
-    C 380 1500, 220 1560, 180 1660
-    C 140 1760, 260 1860, 380 1840
-    C 460 1820, 480 1780, 440 1760
-    C 380 1740, 300 1800, 280 1880
-    L 280 1960
+    M 0 20
+    C 120 20, 200 100, 270 200
+    C 340 300, 420 350, 500 300
+    C 560 260, 520 180, 440 160
+    C 360 140, 300 220, 320 320
+    C 340 440, 460 520, 540 480
+    L 540 480
+    C 540 480, 480 560, 380 620
+    C 280 680, 180 720, 140 800
+    C 100 880, 160 960, 260 980
+    C 360 1000, 480 940, 520 860
+    C 540 800, 480 740, 400 740
+    C 300 740, 200 820, 180 920
+    C 160 1040, 240 1160, 360 1180
+    C 480 1200, 540 1120, 520 1040
+    C 500 960, 400 920, 320 960
+    C 220 1020, 140 1140, 180 1260
+    C 220 1380, 360 1440, 460 1400
+    C 520 1370, 540 1300, 480 1260
+    C 420 1220, 320 1280, 300 1380
+    C 280 1480, 360 1580, 460 1560
+    C 520 1540, 540 1480, 500 1440
   `;
 
   return (
@@ -285,23 +258,22 @@ const ManifestoSection = () => {
       className="relative py-40 md:py-56"
       style={{ background: "hsl(var(--section-dark))" }}
     >
-      {/* SVG flowing line — thicker stroke, starts top-left */}
+      {/* SVG flowing line — much thicker, clean curves */}
       <svg
-        ref={svgRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 540 1960"
+        viewBox="0 0 540 1560"
         preserveAspectRatio="none"
         fill="none"
       >
         <path
           ref={pathRef}
           d={svgPath}
-          stroke="hsl(0 0% 35%)"
-          strokeWidth="4"
+          stroke="hsl(0 0% 25%)"
+          strokeWidth="8"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          opacity="0.85"
+          opacity="0.7"
         />
       </svg>
 
@@ -309,9 +281,7 @@ const ManifestoSection = () => {
         {blocks.map((block, i) => (
           <div
             key={i}
-            ref={(el) => {
-              if (el) blockRefs.current[i] = el;
-            }}
+            ref={(el) => { if (el) blockRefs.current[i] = el; }}
             className={i < blocks.length - 1 ? "mb-44 md:mb-64" : ""}
           >
             <span
