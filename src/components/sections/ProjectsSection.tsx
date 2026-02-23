@@ -83,7 +83,7 @@ const ProjectsSection = () => {
       gsap.set(el, { opacity: 0, y: 30 });
     });
 
-    // Track which cards have been revealed
+    // Track which cards are currently revealed
     const revealed = new Set<number>();
 
     // Horizontal scroll + card reveal driven by scroll progress
@@ -105,23 +105,35 @@ const ProjectsSection = () => {
           gsap.set(img, { xPercent: -8 * progress });
         });
 
-        // Reveal cards progressively as they approach viewport
+        // Reveal/hide cards based on viewport position (repeatable)
         cardRefs.current.forEach((card, i) => {
-          if (!card || revealed.has(i)) return;
+          if (!card) return;
 
           const rect = card.getBoundingClientRect();
-          // Trigger when card enters from the right side
-          if (rect.left < window.innerWidth * 0.85) {
+          const inView = rect.left < window.innerWidth * 0.85 && rect.right > -100;
+
+          if (inView && !revealed.has(i)) {
             revealed.add(i);
             gsap.to(card, {
               opacity: 1, y: 0, scale: 1,
               duration: 0.9, ease: "power3.out",
             });
-            // Title follows with slight delay
             if (titleRefs.current[i]) {
               gsap.to(titleRefs.current[i], {
                 opacity: 1, y: 0,
                 duration: 0.7, delay: 0.15, ease: "power3.out",
+              });
+            }
+          } else if (!inView && revealed.has(i)) {
+            revealed.delete(i);
+            gsap.to(card, {
+              opacity: 0, y: 60, scale: 0.92,
+              duration: 0.5, ease: "power2.in",
+            });
+            if (titleRefs.current[i]) {
+              gsap.to(titleRefs.current[i], {
+                opacity: 0, y: 30,
+                duration: 0.4, ease: "power2.in",
               });
             }
           }

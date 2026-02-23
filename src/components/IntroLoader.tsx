@@ -56,7 +56,7 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
       });
 
       // % hidden initially, lever visible
-      tl.set(percentRef.current, { opacity: 0, scale: 0, rotation: -90 }, 0);
+      if (percentRef.current) tl.set(percentRef.current, { opacity: 0, scale: 0, rotation: -90 }, 0);
 
       // Phase 0: Entrance
       tl.fromTo(frameRef.current,
@@ -111,26 +111,31 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
       }, lastReelStop + 0.05);
 
       // Phase 3: Lever morphs into % — lever fades out, % fades in at the same spot
-      tl.to(leverArmRef.current, {
-        opacity: 0,
-        scale: 0.3,
-        duration: 0.4,
-        ease: "power3.in",
-      }, lastReelStop + 0.4);
+      if (leverArmRef.current) {
+        tl.to(leverArmRef.current, {
+          opacity: 0,
+          scale: 0.3,
+          duration: 0.4,
+          ease: "power3.in",
+        }, lastReelStop + 0.4);
+      }
 
-      tl.to(percentRef.current, {
-        opacity: 1,
-        scale: 1,
-        rotation: 0,
-        duration: 0.6,
-        ease: "back.out(1.8)",
-      }, lastReelStop + 0.65);
+      if (percentRef.current) {
+        tl.to(percentRef.current, {
+          opacity: 1,
+          scale: 1,
+          rotation: 0,
+          duration: 0.6,
+          ease: "back.out(1.8)",
+        }, lastReelStop + 0.65);
+      }
 
       // Phase 4: Hold "100 %" then turn everything black
       const blackStart = lastReelStop + 1.6;
 
       // Hide digits, %, and dividers first
-      tl.to([".reel-digit", percentRef.current, ".reel-divider"], {
+      const fadeTargets = [".reel-digit", ".reel-divider", percentRef.current].filter(Boolean);
+      tl.to(fadeTargets, {
         opacity: 0,
         duration: 0.3,
         ease: "power2.in",
