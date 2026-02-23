@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import redactifyImg from "@/assets/redactify.png";
@@ -144,18 +145,21 @@ const ProjectsSection = () => {
 
   return (
     <>
-      <div
-        className="view-cursor"
-        style={{
-          left: cursorPos.x - 50,
-          top: cursorPos.y - 50,
-          opacity: cursorVisible ? 1 : 0,
-          transform: `scale(${cursorVisible ? 1 : 0})`,
-          transition: "opacity 0.25s ease, transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)",
-        }}
-      >
-        VIEW
-      </div>
+      {createPortal(
+        <div
+          className="view-cursor"
+          style={{
+            left: cursorPos.x - 50,
+            top: cursorPos.y - 50,
+            opacity: cursorVisible ? 1 : 0,
+            transform: `scale(${cursorVisible ? 1 : 0})`,
+            transition: "opacity 0.25s ease, transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)",
+          }}
+        >
+          VIEW
+        </div>,
+        document.body
+      )}
 
       <div ref={wrapperRef} className="relative" style={{ background: "hsl(var(--section-dark))" }}>
         <div className="sticky top-0 h-screen overflow-hidden">
