@@ -11,26 +11,20 @@ const HeroSection = () => {
   const introRef = useRef<HTMLParagraphElement>(null);
   const swapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const pathRef = useRef<SVGPathElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "smoothOut" } });
 
-      // Staggered entrance
       tl.fromTo(introRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8 }, 0.2);
       tl.fromTo(nameRef.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 }, 0.5);
       tl.fromTo(swapRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.9);
 
-      // SVG stroke draw
-      const path = pathRef.current;
-      if (path) {
-        const length = path.getTotalLength();
-        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
-        tl.to(path, { strokeDashoffset: 0, duration: 2, ease: "power3.inOut" }, 0.3);
+      // SVG entrance
+      if (svgRef.current) {
+        tl.fromTo(svgRef.current, { opacity: 0, scale: 0.9 }, { opacity: 0.5, scale: 1, duration: 1.2, ease: "power3.out" }, 0.4);
 
-        // Subtle wave rotation
         gsap.to(svgRef.current, {
           rotation: 3,
           yoyo: true,
@@ -69,12 +63,18 @@ const HeroSection = () => {
         <p ref={introRef} className="text-lg md:text-xl tracking-wide opacity-0" style={{ fontFamily: "'Inter', sans-serif" }}>
           hello.! I'm
         </p>
-        <div ref={nameRef} className="opacity-0">
+        <div ref={nameRef} className="opacity-0" style={{ position: 'relative', height: '180px' }}>
           <TextPressure
             text="SAKTHIVEL"
-            className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight leading-none cursor-default"
-            minWeight={300}
-            maxWeight={700}
+            flex
+            alpha={false}
+            stroke={false}
+            width
+            weight
+            italic
+            textColor="#ededed"
+            strokeColor="#555555"
+            minFontSize={36}
           />
         </div>
         <div ref={swapRef} className="h-8 md:h-10 overflow-hidden relative opacity-0 mt-2">
@@ -91,13 +91,13 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Right Column - SVG Hand */}
+      {/* Right Column - Hand SVG */}
       <div className="flex-1 flex items-center justify-center max-w-md md:max-w-lg">
         <svg
           ref={svgRef}
-          viewBox="0 0 400 500"
-          className="w-full h-auto opacity-60"
-          fill="none"
+          viewBox="0 0 32 32"
+          className="w-full h-auto opacity-0"
+          fill="hsl(var(--hero-fg))"
           xmlns="http://www.w3.org/2000/svg"
           onMouseEnter={() => {
             if (svgRef.current) {
@@ -105,22 +105,7 @@ const HeroSection = () => {
             }
           }}
         >
-          <path
-            ref={pathRef}
-            d="M200 480 C200 480 160 400 160 320 C160 280 140 260 140 220 C140 190 155 180 170 180 C185 180 195 195 195 210 L195 280 M195 210 C195 195 195 160 195 130 C195 105 210 95 225 95 C240 95 250 105 250 130 L250 270 M250 130 C250 110 250 80 260 60 C270 40 285 35 300 40 C315 45 315 65 310 90 L290 270 M310 90 C315 70 325 55 340 55 C355 55 365 70 360 95 C355 120 340 180 330 270 M160 320 C130 320 80 310 60 300 C40 290 30 270 50 260 C70 250 100 260 140 280"
-            stroke="hsl(var(--hero-fg))"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* Blueprint grid lines */}
-          <line x1="0" y1="100" x2="400" y2="100" stroke="hsl(var(--muted-foreground))" strokeWidth="0.3" opacity="0.2" />
-          <line x1="0" y1="200" x2="400" y2="200" stroke="hsl(var(--muted-foreground))" strokeWidth="0.3" opacity="0.2" />
-          <line x1="0" y1="300" x2="400" y2="300" stroke="hsl(var(--muted-foreground))" strokeWidth="0.3" opacity="0.2" />
-          <line x1="0" y1="400" x2="400" y2="400" stroke="hsl(var(--muted-foreground))" strokeWidth="0.3" opacity="0.2" />
-          <line x1="100" y1="0" x2="100" y2="500" stroke="hsl(var(--muted-foreground))" strokeWidth="0.3" opacity="0.2" />
-          <line x1="200" y1="0" x2="200" y2="500" stroke="hsl(var(--muted-foreground))" strokeWidth="0.3" opacity="0.2" />
-          <line x1="300" y1="0" x2="300" y2="500" stroke="hsl(var(--muted-foreground))" strokeWidth="0.3" opacity="0.2" />
+          <path d="M31 8.5c0 0-2.53 5.333-3.215 8.062-0.896 3.57 0.13 6.268-1.172 9.73-2.25 4.060-2.402 4.717-10.613 4.708-3.009-0.003-11.626-2.297-11.626-2.297-1.188-0.305-3.373-0.125-3.373-1.453s1.554-2.296 2.936-2.3l5.439 0.478c1.322-0.083 2.705-0.856 2.747-2.585-0.022-2.558-0.275-4.522-1.573-6.6l-5.042-7.867c-0.301-0.626-0.373-1.694 0.499-2.171s1.862 0.232 2.2 0.849l5.631 7.66c0.602 0.559 1.671 0.667 1.58-0.524l-2.487-11.401c-0.155-0.81 0.256-1.791 1.194-1.791 1.231 0 1.987 0.47 1.963 1.213l2.734 11.249c0.214 0.547 0.972 0.475 1.176-0.031l0.779-10.939c0.040-0.349 0.495-0.957 1.369-0.831s1.377 1.063 1.285 1.424l-0.253 10.809c0.177 0.958 0.93 1.098 1.517 0.563l3.827-6.843c0.232-0.574 1.143-0.693 1.67-0.466 0.491 0.32 0.81 0.748 0.81 1.351v0z" />
         </svg>
       </div>
     </section>
