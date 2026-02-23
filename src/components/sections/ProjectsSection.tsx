@@ -19,6 +19,10 @@ const ProjectsSection = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
+  const dividerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<HTMLDivElement[]>([]);
+  const imageRefs = useRef<HTMLDivElement[]>([]);
+  const titleRefs = useRef<HTMLDivElement[]>([]);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [cursorVisible, setCursorVisible] = useState(false);
 
@@ -36,7 +40,7 @@ const ProjectsSection = () => {
     setWrapperHeight();
     window.addEventListener("resize", setWrapperHeight);
 
-    // Heading entrance
+    // Heading char-by-char entrance
     if (headingRef.current) {
       const chars = headingRef.current.querySelectorAll(".heading-char");
       gsap.set(chars, { y: 120, opacity: 0, rotateX: 90 });
@@ -48,17 +52,40 @@ const ProjectsSection = () => {
             y: 0, opacity: 1, rotateX: 0,
             duration: 1.2, stagger: 0.04, ease: "power4.out",
           });
+          // Divider draws in
+          if (dividerRef.current) {
+            gsap.fromTo(dividerRef.current,
+              { scaleX: 0 },
+              { scaleX: 1, duration: 1, delay: 0.5, ease: "power3.out" }
+            );
+          }
         },
         onLeaveBack: () => {
           gsap.to(chars, {
             y: 120, opacity: 0, rotateX: 90,
             duration: 0.6, stagger: 0.02, ease: "power2.in",
           });
+          if (dividerRef.current) {
+            gsap.to(dividerRef.current, { scaleX: 0, duration: 0.4, ease: "power2.in" });
+          }
         },
       });
     }
 
-    // Horizontal scroll via ScrollTrigger
+    // Set initial card states — hidden
+    cardRefs.current.forEach((card) => {
+      if (!card) return;
+      gsap.set(card, { opacity: 0, y: 60, scale: 0.92 });
+    });
+    titleRefs.current.forEach((el) => {
+      if (!el) return;
+      gsap.set(el, { opacity: 0, y: 30 });
+    });
+
+    // Track which cards have been revealed
+    const revealed = new Set<number>();
+
+    // Horizontal scroll + card reveal driven by scroll progress
     const st = ScrollTrigger.create({
       trigger: wrapper,
       start: "top top",
@@ -66,7 +93,38 @@ const ProjectsSection = () => {
       scrub: 0.8,
       onUpdate: (self) => {
         const scrollAmount = getScrollAmount();
-        gsap.set(track, { x: -scrollAmount * self.progress });
+        const progress = self.progress;
+
+        // Move track horizontally
+        gsap.set(track, { x: -scrollAmount * progress });
+
+        // Image parallax — shift images within their containers
+        imageRefs.current.forEach((img) => {
+          if (!img) return;
+          gsap.set(img, { xPercent: -8 * progress });
+        });
+
+        // Reveal cards progressively as they approach viewport
+        cardRefs.current.forEach((card, i) => {
+          if (!card || revealed.has(i)) return;
+
+          const rect = card.getBoundingClientRect();
+          // Trigger when card enters from the right side
+          if (rect.left < window.innerWidth * 0.85) {
+            revealed.add(i);
+            gsap.to(card, {
+              opacity: 1, y: 0, scale: 1,
+              duration: 0.9, ease: "power3.out",
+            });
+            // Title follows with slight delay
+            if (titleRefs.current[i]) {
+              gsap.to(titleRefs.current[i], {
+                opacity: 1, y: 0,
+                duration: 0.7, delay: 0.15, ease: "power3.out",
+              });
+            }
+          }
+        });
       },
     });
 
@@ -107,22 +165,26 @@ const ProjectsSection = () => {
                   </span>
                 ))}
               </h2>
-              <div className="w-16 h-px bg-muted-foreground mt-8 origin-left" />
+              <div ref={dividerRef} className="w-16 h-px bg-muted-foreground mt-8 origin-left" style={{ transform: "scaleX(0)" }} />
             </div>
 
             {projects.map((project, i) => (
               <div
                 key={i}
+                ref={(el) => { if (el) cardRefs.current[i] = el; }}
                 className="flex-shrink-0 w-[60vw] md:w-[40vw] flex flex-col gap-4 cursor-none"
                 onMouseEnter={() => setCursorVisible(true)}
                 onMouseLeave={() => setCursorVisible(false)}
               >
                 <div className="w-full aspect-[4/3] relative overflow-hidden rounded-sm">
-                  <div className="w-[116%] h-full">
+                  <div
+                    ref={(el) => { if (el) imageRefs.current[i] = el; }}
+                    className="w-[116%] h-full"
+                  >
                     <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
                   </div>
                 </div>
-                <div>
+                <div ref={(el) => { if (el) titleRefs.current[i] = el; }}>
                   <h3 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}>
                     {project.title}
                   </h3>
