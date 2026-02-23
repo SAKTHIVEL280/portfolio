@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Matter from "matter-js";
@@ -17,6 +17,9 @@ const SkillsSection = () => {
   const physicsRef = useRef<HTMLDivElement>(null);
   const pillRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const engineRef = useRef<Matter.Engine | null>(null);
+  const runnerRef = useRef<Matter.Runner | null>(null);
+  const bodiesRef = useRef<Matter.Body[]>([]);
+  const [hasDropped, setHasDropped] = useState(false);
 
   // Curve flattening on scroll
   useEffect(() => {
@@ -40,13 +43,13 @@ const SkillsSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Matter.js physics
+  // Matter.js physics — only start when section enters view
   useEffect(() => {
     const container = physicsRef.current;
     if (!container) return;
 
-    const { Engine, World, Bodies, Mouse, MouseConstraint, Runner, Events } = Matter;
-    const engine = Engine.create({ gravity: { x: 0, y: 1, scale: 0.001 } });
+    const { Engine, World, Bodies, Mouse, MouseConstraint, Runner } = Matter;
+    const engine = Engine.create({ gravity: { x: 0, y: 0, scale: 0.001 } });
     engineRef.current = engine;
 
     const width = container.offsetWidth;
@@ -60,7 +63,7 @@ const SkillsSection = () => {
     ];
     World.add(engine.world, walls);
 
-    // Create pill bodies
+    // Create pill bodies — positioned in a grid, gravity off initially
     const allSkills = [
       ...coreSkills.map((s) => ({ label: s, type: "core" as const })),
       ...augmentedSkills.map((s) => ({ label: s, type: "augmented" as const })),
@@ -69,20 +72,26 @@ const SkillsSection = () => {
     const bodies = allSkills.map((skill, i) => {
       const pillWidth = skill.label.length * 10 + 40;
       const pillHeight = 40;
-      const x = 80 + Math.random() * (width - 160);
-      const y = -50 - i * 50;
+      const cols = 4;
+      const colWidth = (width - 120) / cols;
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = 80 + col * colWidth + Math.random() * 30;
+      const y = 60 + row * 55;
       const body = Bodies.rectangle(x, y, pillWidth, pillHeight, {
         chamfer: { radius: 20 },
-        restitution: 0.6,
+        restitution: 0.5,
         friction: 0.1,
         frictionAir: 0.02,
         label: skill.label,
+        isStatic: true,
       });
       (body as any).skillType = skill.type;
       (body as any).skillIndex = i;
       return body;
     });
 
+    bodiesRef.current = bodies;
     World.add(engine.world, bodies);
 
     // Mouse constraint
@@ -95,6 +104,7 @@ const SkillsSection = () => {
 
     // Runner
     const runner = Runner.create();
+    runnerRef.current = runner;
     Runner.run(runner, engine);
 
     // Sync DOM
@@ -116,6 +126,27 @@ const SkillsSection = () => {
       Engine.clear(engine);
     };
   }, []);
+
+  // Drop pills on hover
+  const handleDrop = () => {
+    if (hasDropped || !engineRef.current) return;
+    setHasDropped(true);
+
+    // Enable gravity
+    engineRef.current.gravity.y = 1;
+
+    // Make all bodies dynamic with staggered timing
+    bodiesRef.current.forEach((body, i) => {
+      setTimeout(() => {
+        Matter.Body.setStatic(body, false);
+        // Give a small random impulse for variety
+        Matter.Body.applyForce(body, body.position, {
+          x: (Math.random() - 0.5) * 0.01,
+          y: 0,
+        });
+      }, i * 40);
+    });
+  };
 
   const allSkills = [
     ...coreSkills.map((s) => ({ label: s, type: "core" as const })),
@@ -141,7 +172,7 @@ const SkillsSection = () => {
             Skills & Stack
           </h2>
           <p className="text-lg mb-16" style={{ color: "hsl(0 0% 40%)", fontFamily: "'Inter', sans-serif" }}>
-            Drag, throw, and play.
+            Hover to unleash. Drag, throw, and play.
           </p>
         </div>
 
@@ -150,6 +181,8 @@ const SkillsSection = () => {
           ref={physicsRef}
           className="relative mx-8 md:mx-16 mb-16 select-none"
           style={{ height: "500px", cursor: "grab" }}
+          onMouseEnter={handleDrop}
+          onTouchStart={handleDrop}
         >
           {allSkills.map((skill, i) => (
             <div
