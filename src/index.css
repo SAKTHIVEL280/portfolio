@@ -111,13 +111,5 @@ html.lenis, html.lenis body {
   text-transform: uppercase;
   pointer-events: none;
   position: fixed;
-  top: 0;
-  left: 0;
   z-index: 9999;
-  mix-blend-mode: difference;
-  transform: scale(0);
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
-.view-cursor.active {
-  transform: scale(1);
 }
