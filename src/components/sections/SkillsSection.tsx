@@ -18,24 +18,63 @@ const augmentedSkills = [
 
 const SkillsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const svgPathRef = useRef<SVGPathElement>(null);
+  const wavePath1 = useRef<SVGPathElement>(null);
+  const wavePath2 = useRef<SVGPathElement>(null);
+  const wavePath3 = useRef<SVGPathElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
-  // SVG curve morph on scroll
+  // Multi-layer SVG wave morph on scroll
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (svgPathRef.current) {
+      // Layer 1 — main deep wave
+      if (wavePath1.current) {
         gsap.fromTo(
-          svgPathRef.current,
-          { attr: { d: "M0,0 C240,400 480,-100 720,300 C960,-50 1200,450 1440,0 L1440,500 L0,500 Z" } },
+          wavePath1.current,
+          { attr: { d: "M0,120 C180,20 360,220 540,80 C720,-40 900,200 1080,60 C1260,-20 1380,180 1440,100 L1440,320 L0,320 Z" } },
           {
-            attr: { d: "M0,480 C240,490 480,485 720,490 C960,485 1200,490 1440,480 L1440,500 L0,500 Z" },
-            ease: "power2.inOut",
+            attr: { d: "M0,300 C180,305 360,298 540,302 C720,300 900,304 1080,300 C1260,302 1380,300 1440,300 L1440,320 L0,320 Z" },
+            ease: "power1.inOut",
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top 100%",
-              end: "top 10%",
+              end: "top 20%",
+              scrub: 0.5,
+            },
+          }
+        );
+      }
+
+      // Layer 2 — mid wave, slightly offset
+      if (wavePath2.current) {
+        gsap.fromTo(
+          wavePath2.current,
+          { attr: { d: "M0,160 C200,60 400,260 600,100 C800,0 1000,240 1200,120 C1350,40 1400,200 1440,140 L1440,320 L0,320 Z" } },
+          {
+            attr: { d: "M0,304 C200,300 400,306 600,302 C800,304 1000,300 1200,304 C1350,302 1400,304 1440,302 L1440,320 L0,320 Z" },
+            ease: "power1.inOut",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 95%",
+              end: "top 15%",
               scrub: 0.8,
+            },
+          }
+        );
+      }
+
+      // Layer 3 — soft front wave
+      if (wavePath3.current) {
+        gsap.fromTo(
+          wavePath3.current,
+          { attr: { d: "M0,200 C240,100 480,280 720,150 C960,60 1200,260 1440,180 L1440,320 L0,320 Z" } },
+          {
+            attr: { d: "M0,308 C240,306 480,310 720,306 C960,308 1200,306 1440,308 L1440,320 L0,320 Z" },
+            ease: "power1.inOut",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 90%",
+              end: "top 10%",
+              scrub: 1.2,
             },
           }
         );
@@ -67,17 +106,30 @@ const SkillsSection = () => {
 
   return (
     <section ref={sectionRef} id="skills" className="relative">
-      {/* SVG Morphing Curve */}
+      {/* SVG Morphing Curves — 3 layers */}
       <div className="relative w-full" style={{ marginTop: "-1px" }}>
         <svg
-          viewBox="0 0 1440 500"
+          viewBox="0 0 1440 320"
           className="w-full block"
           preserveAspectRatio="none"
-          style={{ height: "clamp(200px, 30vw, 500px)" }}
+          style={{ height: "clamp(160px, 25vw, 400px)" }}
         >
+          {/* Back layer — lightest */}
           <path
-            ref={svgPathRef}
-            d="M0,0 C240,400 480,-100 720,300 C960,-50 1200,450 1440,0 L1440,500 L0,500 Z"
+            ref={wavePath1}
+            d="M0,120 C180,20 360,220 540,80 C720,-40 900,200 1080,60 C1260,-20 1380,180 1440,100 L1440,320 L0,320 Z"
+            fill="hsl(0 0% 94%)"
+          />
+          {/* Mid layer */}
+          <path
+            ref={wavePath2}
+            d="M0,160 C200,60 400,260 600,100 C800,0 1000,240 1200,120 C1350,40 1400,200 1440,140 L1440,320 L0,320 Z"
+            fill="hsl(0 0% 97%)"
+          />
+          {/* Front layer — white */}
+          <path
+            ref={wavePath3}
+            d="M0,200 C240,100 480,280 720,150 C960,60 1200,260 1440,180 L1440,320 L0,320 Z"
             fill="hsl(0 0% 100%)"
           />
         </svg>
