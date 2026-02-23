@@ -1,4 +1,4 @@
-import { useRef, useEffect, forwardRef, type ReactNode } from "react";
+import { useRef, useEffect, type ReactNode } from "react";
 import gsap from "gsap";
 
 interface MagneticProps {
@@ -7,7 +7,7 @@ interface MagneticProps {
   className?: string;
 }
 
-const Magnetic = forwardRef<HTMLDivElement, MagneticProps>(({ children, strength = 20, className = "" }, _forwardedRef) => {
+const Magnetic = ({ children, strength = 20, className = "" }: MagneticProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const xTo = useRef<gsap.QuickToFunc | null>(null);
   const yTo = useRef<gsap.QuickToFunc | null>(null);
@@ -52,8 +52,6 @@ const Magnetic = forwardRef<HTMLDivElement, MagneticProps>(({ children, strength
       {children}
     </div>
   );
-});
-
-Magnetic.displayName = "Magnetic";
+};
 
 export default Magnetic;
