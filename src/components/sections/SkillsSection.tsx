@@ -1,199 +1,197 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Matter from "matter-js";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const coreSkills = [
-  "Python", "C", "Java", "Applied AI", "AI Automations",
-  "SQL", "Firebase", "Supabase", "Vercel", "Context Engineering", "AI Designing",
+const skills = [
+  { label: "Python", type: "core" },
+  { label: "C", type: "core" },
+  { label: "Java", type: "core" },
+  { label: "Applied AI", type: "core" },
+  { label: "AI Automations", type: "core" },
+  { label: "SQL", type: "core" },
+  { label: "Firebase", type: "core" },
+  { label: "Supabase", type: "core" },
+  { label: "Vercel", type: "core" },
+  { label: "Context Engineering", type: "core" },
+  { label: "AI Designing", type: "core" },
+  { label: "JavaScript", type: "augmented" },
+  { label: "React", type: "augmented" },
+  { label: "Next.js", type: "augmented" },
+  { label: "Tauri", type: "augmented" },
 ];
-const augmentedSkills = ["JavaScript", "React", "Next.js", "Tauri"];
 
 const SkillsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const curveRef = useRef<HTMLDivElement>(null);
-  const physicsRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const pillRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const engineRef = useRef<Matter.Engine | null>(null);
-  const runnerRef = useRef<Matter.Runner | null>(null);
-  const bodiesRef = useRef<Matter.Body[]>([]);
-  const droppedRef = useRef<Set<number>>(new Set());
-  const [, forceRender] = useState(0);
+  const gravityTriggered = useRef(false);
 
-  // Curve flattening on scroll
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      if (curveRef.current) {
-        gsap.fromTo(
-          curveRef.current,
-          { borderRadius: "50% 50% 0 0 / 100px 100px 0 0" },
-          {
-            borderRadius: "0% 0% 0 0 / 0px 0px 0 0",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 80%",
-              end: "top 20%",
-              scrub: true,
-            },
-          }
-        );
-      }
-    }, sectionRef);
-    return () => ctx.revert();
-  }, []);
-
-  // Matter.js physics
-  useEffect(() => {
-    const container = physicsRef.current;
+    const container = canvasRef.current;
     if (!container) return;
 
-    const { Engine, World, Bodies, Mouse, MouseConstraint, Runner } = Matter;
+    const { Engine, World, Bodies, Body, Mouse, MouseConstraint, Runner, Events } = Matter;
+
+    const width = container.offsetWidth;
+    const height = container.offsetHeight || 520;
+
     const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     engineRef.current = engine;
 
-    const width = container.offsetWidth;
-    const height = 500;
+    // Walls — floor, left, right, ceiling
+    const t = 50;
+    World.add(engine.world, [
+      Bodies.rectangle(width / 2, height + t / 2, width + 100, t, { isStatic: true }),
+      Bodies.rectangle(-t / 2, height / 2, t, height * 3, { isStatic: true }),
+      Bodies.rectangle(width + t / 2, height / 2, t, height * 3, { isStatic: true }),
+      Bodies.rectangle(width / 2, -t / 2 - 200, width + 100, t, { isStatic: true }),
+    ]);
 
-    // Walls
-    const walls = [
-      Bodies.rectangle(width / 2, height + 25, width, 50, { isStatic: true }),
-      Bodies.rectangle(-25, height / 2, 50, height * 2, { isStatic: true }),
-      Bodies.rectangle(width + 25, height / 2, 50, height * 2, { isStatic: true }),
-    ];
-    World.add(engine.world, walls);
+    // Create bodies for each skill pill
+    const spacing = 58;
+    const cols = Math.min(5, Math.floor((width - 80) / 180));
+    const startX = width / 2 - ((cols - 1) * 180) / 2;
 
-    const allSkills = [
-      ...coreSkills.map((s) => ({ label: s, type: "core" as const })),
-      ...augmentedSkills.map((s) => ({ label: s, type: "augmented" as const })),
-    ];
-
-    const bodies = allSkills.map((skill, i) => {
-      const pillWidth = skill.label.length * 10 + 40;
-      const pillHeight = 40;
-      const cols = 4;
-      const colWidth = (width - 120) / cols;
+    const bodies = skills.map((skill, i) => {
+      const pillW = skill.label.length * 9.5 + 44;
+      const pillH = 42;
       const col = i % cols;
       const row = Math.floor(i / cols);
-      const x = 80 + col * colWidth + Math.random() * 20;
-      const y = 60 + row * 55;
-      const body = Bodies.rectangle(x, y, pillWidth, pillHeight, {
-        chamfer: { radius: 20 },
-        restitution: 0.5,
-        friction: 0.1,
-        frictionAir: 0.02,
-        label: skill.label,
+      const x = startX + col * 180;
+      const y = 80 + row * spacing;
+
+      const body = Bodies.rectangle(x, y, pillW, pillH, {
+        chamfer: { radius: 21 },
+        restitution: 0.45,
+        friction: 0.3,
+        frictionAir: 0.035,
+        density: 0.002,
         isStatic: true,
+        label: skill.label,
       });
-      (body as any).skillType = skill.type;
       (body as any).skillIndex = i;
+      (body as any).skillType = skill.type;
       return body;
     });
 
-    bodiesRef.current = bodies;
     World.add(engine.world, bodies);
 
-    // Mouse constraint
+    // Mouse drag
     const mouse = Mouse.create(container);
     const mc = MouseConstraint.create(engine, {
       mouse,
-      constraint: { stiffness: 0.2, render: { visible: false } },
+      constraint: { stiffness: 0.6, damping: 0.1, render: { visible: false } },
     });
     World.add(engine.world, mc);
 
+    // Throw velocity on drag end
+    Events.on(mc, "enddrag", (e: any) => {
+      const body = e.body;
+      if (body) {
+        const vx = body.velocity.x;
+        const vy = body.velocity.y;
+        Body.setVelocity(body, { x: vx * 2.5, y: vy * 2.5 });
+      }
+    });
+
     const runner = Runner.create();
-    runnerRef.current = runner;
     Runner.run(runner, engine);
 
-    // Sync DOM
-    let rafId: number;
+    // Sync DOM positions
+    let raf: number;
     const sync = () => {
       bodies.forEach((body) => {
-        const idx = (body as any).skillIndex;
-        const el = pillRefs.current.get(idx);
+        const i = (body as any).skillIndex;
+        const el = pillRefs.current.get(i);
         if (el) {
-          el.style.transform = `translate(${body.position.x - el.offsetWidth / 2}px, ${body.position.y - el.offsetHeight / 2}px) rotate(${body.angle}rad)`;
+          const w = el.offsetWidth;
+          const h = el.offsetHeight;
+          el.style.transform = `translate(${body.position.x - w / 2}px, ${body.position.y - h / 2}px) rotate(${body.angle}rad)`;
         }
       });
-      rafId = requestAnimationFrame(sync);
+      raf = requestAnimationFrame(sync);
     };
-    rafId = requestAnimationFrame(sync);
+    raf = requestAnimationFrame(sync);
+
+    // ScrollTrigger — drop all pills with staggered timing
+    ScrollTrigger.create({
+      trigger: container,
+      start: "top 75%",
+      once: true,
+      onEnter: () => {
+        if (gravityTriggered.current) return;
+        gravityTriggered.current = true;
+        engine.gravity.y = 1.2;
+
+        bodies.forEach((body, i) => {
+          setTimeout(() => {
+            Body.setStatic(body, false);
+            Body.applyForce(body, body.position, {
+              x: (Math.random() - 0.5) * 0.025,
+              y: -0.008 + Math.random() * 0.004,
+            });
+          }, i * 60 + Math.random() * 40);
+        });
+      },
+    });
 
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(raf);
       Runner.stop(runner);
       Engine.clear(engine);
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
-
-  // Drop individual pill on hover
-  const handlePillHover = useCallback((index: number) => {
-    if (droppedRef.current.has(index) || !engineRef.current) return;
-    droppedRef.current.add(index);
-    forceRender((n) => n + 1);
-
-    // Enable gravity if this is the first drop
-    if (droppedRef.current.size === 1) {
-      engineRef.current.gravity.y = 1;
-    }
-
-    const body = bodiesRef.current[index];
-    if (body) {
-      Matter.Body.setStatic(body, false);
-      Matter.Body.applyForce(body, body.position, {
-        x: (Math.random() - 0.5) * 0.015,
-        y: 0.002,
-      });
-    }
-  }, []);
-
-  const allSkills = [
-    ...coreSkills.map((s) => ({ label: s, type: "core" as const })),
-    ...augmentedSkills.map((s) => ({ label: s, type: "augmented" as const })),
-  ];
 
   return (
     <section ref={sectionRef} id="skills" className="relative">
       <div
-        ref={curveRef}
         className="w-full overflow-hidden"
-        style={{
-          background: "hsl(var(--section-light))",
-          borderRadius: "50% 50% 0 0 / 100px 100px 0 0",
-        }}
+        style={{ background: "hsl(var(--section-light))" }}
       >
-        <div className="px-8 md:px-16 pt-32 pb-8">
+        <div className="px-8 md:px-16 pt-32 pb-4">
           <h2
-            className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold mb-3"
             style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(0 0% 4%)" }}
           >
             Skills & Stack
           </h2>
-          <p className="text-lg mb-16" style={{ color: "hsl(0 0% 40%)", fontFamily: "'Inter', sans-serif" }}>
-            Hover each pill to drop it. Drag, throw, and play.
+          <p
+            className="text-base mb-12 tracking-wide"
+            style={{ color: "hsl(0 0% 45%)", fontFamily: "'Inter', sans-serif" }}
+          >
+            Grab, drag, and throw them around.
           </p>
         </div>
 
-        {/* Physics container */}
         <div
-          ref={physicsRef}
-          className="relative mx-8 md:mx-16 mb-16 select-none"
-          style={{ height: "500px", cursor: "grab" }}
+          ref={canvasRef}
+          className="relative mx-6 md:mx-16 mb-16 select-none overflow-hidden rounded-2xl"
+          style={{
+            height: "520px",
+            cursor: "grab",
+            background: "hsl(0 0% 96%)",
+            border: "1px solid hsl(0 0% 88%)",
+          }}
         >
-          {allSkills.map((skill, i) => (
+          {skills.map((skill, i) => (
             <div
-              key={i}
+              key={skill.label}
               ref={(el) => { if (el) pillRefs.current.set(i, el); }}
-              className="absolute top-0 left-0 px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap"
+              className="absolute top-0 left-0 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap select-none"
               style={{
                 fontFamily: "'Space Grotesk', sans-serif",
-                background: skill.type === "augmented" ? "hsl(0 0% 8%)" : "hsl(0 0% 95%)",
-                color: skill.type === "augmented" ? "hsl(0 0% 92%)" : "hsl(0 0% 8%)",
-                border: skill.type === "core" ? "1px solid hsl(0 0% 20%)" : "none",
-                pointerEvents: droppedRef.current.has(i) ? "none" : "auto",
+                background: skill.type === "augmented" ? "hsl(0 0% 8%)" : "hsl(0 0% 100%)",
+                color: skill.type === "augmented" ? "hsl(0 0% 95%)" : "hsl(0 0% 10%)",
+                border: skill.type === "core" ? "1.5px solid hsl(0 0% 78%)" : "none",
+                boxShadow: "0 2px 8px hsl(0 0% 0% / 0.06)",
+                pointerEvents: "none",
+                willChange: "transform",
               }}
-              onMouseEnter={() => handlePillHover(i)}
             >
               {skill.label}
             </div>
