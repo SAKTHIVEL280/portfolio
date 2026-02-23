@@ -102,39 +102,37 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         if (!inner) return;
 
         const targetY = -(targets[i] * digitH);
-        const spinDuration = 1.6 + i * 0.5; // Each reel takes longer to stop
-        const startTime = 1.7; // Start when lever is pulled
+        // Full spin: go through all digits multiple times then land on target
+        // Each full cycle = 10 digits. We spin 2 full cycles + target offset
+        const fullCycleY = 10 * digitH;
+        const totalSpinY = -(fullCycleY * 2) + targetY; // 2 full spins + final position
+        const spinDelay = i * 0.4; // Stagger: each reel starts slightly later
 
-        // Fast random spin
-        tl.fromTo(
+        // Phase A: Fast continuous spin (constant speed)
+        tl.to(
           inner,
-          { y: 0 },
+          {
+            y: -(fullCycleY * 2),
+            duration: 1.2 + i * 0.3,
+            ease: "none",
+          },
+          1.7 + spinDelay
+        );
+
+        // Phase B: Decelerate to final position
+        tl.to(
+          inner,
           {
             y: targetY,
-            duration: spinDuration,
-            ease: "power3.out",
-            // Overshoot slightly for a mechanical feel
-            modifiers: {
-              y: (y: string) => {
-                const progress = tl.progress();
-                const reelProgress = Math.min(1, (tl.time() - startTime) / spinDuration);
-                if (reelProgress < 0) return "0px";
-                if (reelProgress < 0.6) {
-                  // Fast spin phase — cycle through random positions
-                  const spinY = -(Math.floor(Math.random() * 20) * digitH);
-                  return spinY + "px";
-                }
-                // Deceleration phase — ease to target
-                return y;
-              },
-            },
+            duration: 0.8,
+            ease: "back.out(1.2)",
           },
-          startTime
+          1.7 + spinDelay + 1.2 + i * 0.3
         );
       });
 
       // Phase 3: Landing flash when all reels stop
-      const allReelsStop = 1.7 + 1.6 + 2 * 0.5; // ~3.7s
+      const allReelsStop = 1.7 + 0.8 + 1.2 + 2 * 0.3 + 0.8 + 0.8; // ~5.3s
 
       tl.to(
         frameRef.current,
