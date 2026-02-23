@@ -45,43 +45,42 @@ const blocks = [
 
 const SYMBOLS = "!@#$%&*+^?/<>{}[]~";
 
-const scrambleLine = (el: HTMLElement, finalText: string) => {
+const scrambleLine = (el: HTMLElement, _finalText: string) => {
   let iteration = 0;
   const maxIterations = 10;
+
+  // Find only leaf text spans — either .highlight-text or plain [data-word] without children
+  const textTargets: { el: HTMLElement; word: string }[] = [];
+  const highlightTexts = el.querySelectorAll<HTMLElement>(".highlight-text");
+  highlightTexts.forEach((ht) => {
+    textTargets.push({ el: ht, word: ht.textContent || "" });
+  });
+  const plainWords = el.querySelectorAll<HTMLElement>("[data-word]");
+  plainWords.forEach((pw) => {
+    // Skip highlight-word containers (they have children), only target plain text spans
+    if (pw.classList.contains("highlight-word")) return;
+    textTargets.push({ el: pw, word: pw.getAttribute("data-word") || "" });
+  });
+
+  if (textTargets.length === 0) return;
+
   const interval = setInterval(() => {
-    const spans = el.querySelectorAll<HTMLElement>("[data-word]");
-    if (spans.length > 0) {
-      spans.forEach((span) => {
-        const word = span.getAttribute("data-word") || "";
-        span.textContent = word
-          .split("")
-          .map((char, i) => {
-            if (i < (iteration / maxIterations) * word.length) return char;
-            if (char === " ") return " ";
-            return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-          })
-          .join("");
-      });
-    } else {
-      el.textContent = finalText
+    textTargets.forEach(({ el: target, word }) => {
+      target.textContent = word
         .split("")
         .map((char, i) => {
-          if (i < (iteration / maxIterations) * finalText.length) return char;
+          if (i < (iteration / maxIterations) * word.length) return char;
           if (char === " ") return " ";
           return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
         })
         .join("");
-    }
+    });
     iteration++;
     if (iteration > maxIterations) {
       clearInterval(interval);
-      if (spans.length > 0) {
-        spans.forEach((span) => {
-          span.textContent = span.getAttribute("data-word") || "";
-        });
-      } else {
-        el.textContent = finalText;
-      }
+      textTargets.forEach(({ el: target, word }) => {
+        target.textContent = word;
+      });
     }
   }, 30);
 };

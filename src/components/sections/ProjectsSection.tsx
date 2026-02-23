@@ -65,55 +65,29 @@ const ProjectsSection = () => {
         animation: gsap.to(track, { x: -totalWidth, ease: "none" }),
       });
 
-      // Card reveal — each card animates individually based on its own visibility
+      // Card reveal — animate each card as it enters viewport during horizontal scroll
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
+        gsap.set(card, { opacity: 0, y: 50, scale: 0.95 });
+      });
 
-        // Use the card itself as trigger within the horizontal scroll context
-        gsap.set(card, { opacity: 0, y: 60, scale: 0.94 });
-
-        ScrollTrigger.create({
+      // Use a single scrub-linked timeline for card reveals based on scroll progress
+      const cardTimeline = gsap.timeline({
+        scrollTrigger: {
           trigger: sectionRef.current,
-          start: () => {
-            // Calculate when this card enters the viewport
-            const cardLeft = card.offsetLeft;
-            const viewportWidth = window.innerWidth;
-            // Card becomes visible when its left edge scrolls into view
-            const scrollNeeded = Math.max(0, cardLeft - viewportWidth + 100);
-            return `top+=${scrollNeeded} top`;
-          },
-          end: () => {
-            const cardLeft = card.offsetLeft;
-            const viewportWidth = window.innerWidth;
-            const scrollNeeded = Math.max(0, cardLeft - viewportWidth + 100);
-            return `top+=${scrollNeeded + viewportWidth * 0.4} top`;
-          },
-          scrub: 0.5,
-          onEnter: () => {
-            gsap.to(card, {
-              opacity: 1, y: 0, scale: 1,
-              duration: 0.8, ease: "power3.out",
-            });
-          },
-          onLeave: () => {
-            gsap.to(card, {
-              opacity: 0.6, scale: 0.96,
-              duration: 0.4, ease: "power2.in",
-            });
-          },
-          onEnterBack: () => {
-            gsap.to(card, {
-              opacity: 1, y: 0, scale: 1,
-              duration: 0.6, ease: "power3.out",
-            });
-          },
-          onLeaveBack: () => {
-            gsap.to(card, {
-              opacity: 0, y: 60, scale: 0.94,
-              duration: 0.4, ease: "power2.in",
-            });
-          },
-        });
+          start: "top top",
+          end: () => `+=${totalWidth}`,
+          scrub: 0.6,
+        },
+      });
+
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return;
+        const progress = i / Math.max(projects.length, 1);
+        cardTimeline.to(card, {
+          opacity: 1, y: 0, scale: 1,
+          duration: 0.2, ease: "power2.out",
+        }, progress);
       });
 
       // Parallax on images
@@ -131,29 +105,28 @@ const ProjectsSection = () => {
         });
       });
 
-      // Title slide-up — per card
+      // Title animations — tied to same scrub timeline
       titleRefs.current.forEach((titleEl, i) => {
         if (!titleEl) return;
         gsap.set(titleEl, { y: 30, opacity: 0 });
+      });
 
-        ScrollTrigger.create({
+      const titleTimeline = gsap.timeline({
+        scrollTrigger: {
           trigger: sectionRef.current,
-          start: () => {
-            const card = cardRefs.current[i];
-            if (!card) return "top top";
-            const scrollNeeded = Math.max(0, card.offsetLeft - window.innerWidth + 200);
-            return `top+=${scrollNeeded} top`;
-          },
-          onEnter: () => {
-            gsap.to(titleEl, { y: 0, opacity: 1, duration: 0.7, delay: 0.15, ease: "power3.out" });
-          },
-          onLeaveBack: () => {
-            gsap.to(titleEl, { y: 30, opacity: 0, duration: 0.3, ease: "power2.in" });
-          },
-          onEnterBack: () => {
-            gsap.to(titleEl, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" });
-          },
-        });
+          start: "top top",
+          end: () => `+=${totalWidth}`,
+          scrub: 0.6,
+        },
+      });
+
+      titleRefs.current.forEach((titleEl, i) => {
+        if (!titleEl) return;
+        const progress = i / Math.max(projects.length, 1);
+        titleTimeline.to(titleEl, {
+          y: 0, opacity: 1,
+          duration: 0.2, ease: "power2.out",
+        }, progress + 0.03);
       });
     }, sectionRef);
 
