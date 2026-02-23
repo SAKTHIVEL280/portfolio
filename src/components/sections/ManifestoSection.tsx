@@ -122,22 +122,31 @@ const renderLineWithHighlights = (line: string) => {
         key={i}
         data-word={part.text}
         className="highlight-word"
-        style={{ position: "relative", display: "inline" }}
+        style={{ position: "relative", display: "inline-block" }}
       >
         <span
           className="highlight-bg"
           style={{
             position: "absolute",
-            inset: "-4px -8px",
-            borderRadius: "6px",
-            background: "hsl(0 0% 20%)",
+            inset: "-2px -10px",
+            borderRadius: "8px",
+            background: "hsl(0 0% 22%)",
             transform: "scaleX(0)",
             transformOrigin: "left",
             zIndex: 0,
             transition: "none",
           }}
         />
-        <span style={{ position: "relative", zIndex: 1 }}>{part.text}</span>
+        <span
+          className="highlight-text"
+          style={{
+            position: "relative",
+            zIndex: 1,
+            color: "hsl(0 0% 100%)",
+          }}
+        >
+          {part.text}
+        </span>
       </span>
     ) : (
       <span key={i} data-word={part.text}>{part.text}</span>
@@ -192,15 +201,16 @@ const ManifestoSection = () => {
                 ease: "power3.out",
                 onStart: () => {
                   scrambleLine(line, text);
-                  // Animate ALL highlight backgrounds in this line
+                  // Animate highlight backgrounds
                   const bgs = line.querySelectorAll<HTMLElement>(".highlight-bg");
                   if (bgs.length > 0) {
-                    gsap.to(bgs, {
-                      scaleX: 1,
-                      duration: 0.7,
-                      delay: 0.4,
-                      stagger: 0.1,
-                      ease: "power3.out",
+                    bgs.forEach((bg, bgIdx) => {
+                      gsap.to(bg, {
+                        scaleX: 1,
+                        duration: 0.6,
+                        delay: 0.35 + bgIdx * 0.1,
+                        ease: "power3.out",
+                      });
                     });
                   }
                 },
@@ -225,30 +235,18 @@ const ManifestoSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Simple elegant path — starts top-left, smooth flowing curves, NO tight loops
+  // Clean, premium S-curve — NO loops, just 2 smooth bends
   const svgPath = `
-    M 0 20
-    C 120 20, 200 100, 270 200
-    C 340 300, 420 350, 500 300
-    C 560 260, 520 180, 440 160
-    C 360 140, 300 220, 320 320
-    C 340 440, 460 520, 540 480
-    L 540 480
-    C 540 480, 480 560, 380 620
-    C 280 680, 180 720, 140 800
-    C 100 880, 160 960, 260 980
-    C 360 1000, 480 940, 520 860
-    C 540 800, 480 740, 400 740
-    C 300 740, 200 820, 180 920
-    C 160 1040, 240 1160, 360 1180
-    C 480 1200, 540 1120, 520 1040
-    C 500 960, 400 920, 320 960
-    C 220 1020, 140 1140, 180 1260
-    C 220 1380, 360 1440, 460 1400
-    C 520 1370, 540 1300, 480 1260
-    C 420 1220, 320 1280, 300 1380
-    C 280 1480, 360 1580, 460 1560
-    C 520 1540, 540 1480, 500 1440
+    M 0 40
+    C 100 40, 200 120, 300 240
+    S 460 440, 540 400
+    S 500 280, 400 300
+    S 200 500, 160 700
+    S 260 900, 400 880
+    S 540 780, 520 920
+    S 360 1100, 200 1100
+    S 80 1200, 160 1360
+    S 380 1480, 540 1400
   `;
 
   return (
@@ -258,10 +256,10 @@ const ManifestoSection = () => {
       className="relative py-40 md:py-56"
       style={{ background: "hsl(var(--section-dark))" }}
     >
-      {/* SVG flowing line — much thicker, clean curves */}
+      {/* SVG flowing line */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 540 1560"
+        viewBox="0 0 540 1500"
         preserveAspectRatio="none"
         fill="none"
       >
@@ -269,11 +267,11 @@ const ManifestoSection = () => {
           ref={pathRef}
           d={svgPath}
           stroke="hsl(0 0% 25%)"
-          strokeWidth="8"
+          strokeWidth="10"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          opacity="0.7"
+          opacity="0.5"
         />
       </svg>
 

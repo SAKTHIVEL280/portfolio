@@ -16,6 +16,7 @@ const FooterSection = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // SVG morphs — only trigger when actually scrolled into view
       if (morphPath1.current) {
         gsap.fromTo(
           morphPath1.current,
@@ -25,7 +26,7 @@ const FooterSection = () => {
             ease: "power2.inOut",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 100%",
+              start: "top bottom",
               end: "top 40%",
               scrub: 0.6,
             },
@@ -41,7 +42,7 @@ const FooterSection = () => {
             ease: "power2.inOut",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 95%",
+              start: "top bottom",
               end: "top 35%",
               scrub: 1,
             },
@@ -49,6 +50,7 @@ const FooterSection = () => {
         );
       }
 
+      // Heading
       if (headingRef.current) {
         gsap.fromTo(
           headingRef.current,
@@ -64,6 +66,7 @@ const FooterSection = () => {
         );
       }
 
+      // Email
       if (emailRef.current) {
         gsap.fromTo(
           emailRef.current,
