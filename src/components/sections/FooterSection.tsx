@@ -11,9 +11,45 @@ const FooterSection = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const emailRef = useRef<HTMLDivElement>(null);
+  const morphPath1 = useRef<SVGPathElement>(null);
+  const morphPath2 = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // SVG morph for contact section — blob style
+      if (morphPath1.current) {
+        gsap.fromTo(
+          morphPath1.current,
+          { attr: { d: "M0,0 C480,200 960,-100 1440,80 L1440,300 L0,300 Z" } },
+          {
+            attr: { d: "M0,280 C480,290 960,285 1440,288 L1440,300 L0,300 Z" },
+            ease: "power2.inOut",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 100%",
+              end: "top 40%",
+              scrub: 0.6,
+            },
+          }
+        );
+      }
+      if (morphPath2.current) {
+        gsap.fromTo(
+          morphPath2.current,
+          { attr: { d: "M0,60 C360,180 720,-60 1080,120 C1260,200 1380,40 1440,100 L1440,300 L0,300 Z" } },
+          {
+            attr: { d: "M0,285 C360,290 720,282 1080,288 C1260,286 1380,290 1440,286 L1440,300 L0,300 Z" },
+            ease: "power2.inOut",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 95%",
+              end: "top 35%",
+              scrub: 1,
+            },
+          }
+        );
+      }
+
       if (headingRef.current) {
         gsap.fromTo(
           headingRef.current,
@@ -62,10 +98,31 @@ const FooterSection = () => {
       className="relative"
       style={{ background: "hsl(0 0% 100%)" }}
     >
+      {/* SVG Morph transition — different style (blob/organic) */}
+      <div className="relative w-full" style={{ marginTop: "-1px" }}>
+        <svg
+          viewBox="0 0 1440 300"
+          className="w-full block"
+          preserveAspectRatio="none"
+          style={{ height: "clamp(120px, 20vw, 300px)" }}
+        >
+          <path
+            ref={morphPath1}
+            d="M0,0 C480,200 960,-100 1440,80 L1440,300 L0,300 Z"
+            fill="hsl(0 0% 4%)"
+          />
+          <path
+            ref={morphPath2}
+            d="M0,60 C360,180 720,-60 1080,120 C1260,200 1380,40 1440,100 L1440,300 L0,300 Z"
+            fill="hsl(0 0% 6%)"
+          />
+        </svg>
+      </div>
+
       {/* Curved dark container */}
       <div
         ref={contentRef}
-        className="relative rounded-t-[4rem] md:rounded-t-[5rem] min-h-screen flex flex-col justify-end px-8 md:px-16 pb-8 md:pb-16"
+        className="relative min-h-[80vh] flex flex-col justify-end px-8 md:px-16 pb-8 md:pb-16"
         style={{ background: "hsl(0 0% 4%)", color: "hsl(0 0% 96%)" }}
       >
         <div className="flex-1 flex items-center">
@@ -95,11 +152,11 @@ const FooterSection = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex justify-between items-center pt-8 border-t" style={{ borderColor: "hsl(0 0% 30%)" }}>
-          <span className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: "hsl(0 0% 60%)" }}>
-            Sakthivel © 2026
-          </span>
-          <span className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: "hsl(0 0% 60%)" }}>
+        <div className="flex justify-center items-center pt-8 border-t" style={{ borderColor: "hsl(0 0% 30%)" }}>
+          <span
+            className="text-base md:text-lg tracking-wide"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(0 0% 90%)" }}
+          >
             Built with only AI — and intention.
           </span>
         </div>

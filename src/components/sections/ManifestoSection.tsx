@@ -4,6 +4,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Words to highlight with animated background
+const highlightWords = new Set([
+  "intuition", "systems", "ship", "production", "live", "faster",
+  "No ceremony", "works", "question", "product"
+]);
+
 const blocks = [
   {
     lines: [
@@ -44,20 +50,111 @@ const scrambleLine = (el: HTMLElement, finalText: string) => {
   let iteration = 0;
   const maxIterations = 10;
   const interval = setInterval(() => {
-    el.textContent = finalText
-      .split("")
-      .map((char, i) => {
-        if (i < (iteration / maxIterations) * finalText.length) return char;
-        if (char === " ") return " ";
-        return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-      })
-      .join("");
+    // Only scramble the text nodes, not the highlighted spans
+    const spans = el.querySelectorAll<HTMLElement>("[data-word]");
+    if (spans.length > 0) {
+      spans.forEach((span) => {
+        const word = span.getAttribute("data-word") || "";
+        span.textContent = word
+          .split("")
+          .map((char, i) => {
+            if (i < (iteration / maxIterations) * word.length) return char;
+            if (char === " ") return " ";
+            return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+          })
+          .join("");
+      });
+    } else {
+      el.textContent = finalText
+        .split("")
+        .map((char, i) => {
+          if (i < (iteration / maxIterations) * finalText.length) return char;
+          if (char === " ") return " ";
+          return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        })
+        .join("");
+    }
     iteration++;
     if (iteration > maxIterations) {
       clearInterval(interval);
-      el.textContent = finalText;
+      // Restore the original HTML
+      if (spans.length > 0) {
+        spans.forEach((span) => {
+          span.textContent = span.getAttribute("data-word") || "";
+        });
+      } else {
+        el.textContent = finalText;
+      }
     }
   }, 30);
+};
+
+// Renders line with highlighted words wrapped in spans
+const renderLineWithHighlights = (line: string) => {
+  if (line === "") return null;
+
+  // Check for multi-word highlights first
+  let parts: (string | { text: string; highlighted: boolean })[] = [line];
+
+  // Process highlights
+  const processed: (string | { text: string; highlighted: boolean })[] = [];
+  const sortedHighlights = Array.from(highlightWords).sort((a, b) => b.length - a.length);
+
+  let remaining = line;
+  const result: { text: string; highlighted: boolean }[] = [];
+
+  while (remaining.length > 0) {
+    let found = false;
+    for (const word of sortedHighlights) {
+      const idx = remaining.indexOf(word);
+      if (idx === 0) {
+        result.push({ text: word, highlighted: true });
+        remaining = remaining.slice(word.length);
+        found = true;
+        break;
+      } else if (idx > 0) {
+        result.push({ text: remaining.slice(0, idx), highlighted: false });
+        result.push({ text: word, highlighted: true });
+        remaining = remaining.slice(idx + word.length);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      result.push({ text: remaining, highlighted: false });
+      remaining = "";
+    }
+  }
+
+  return result.map((part, i) =>
+    part.highlighted ? (
+      <span
+        key={i}
+        data-word={part.text}
+        className="highlight-word"
+        style={{
+          position: "relative",
+          display: "inline",
+        }}
+      >
+        <span
+          className="highlight-bg"
+          style={{
+            position: "absolute",
+            inset: "-2px -6px",
+            borderRadius: "4px",
+            background: "hsl(0 0% 22%)",
+            transform: "scaleX(0)",
+            transformOrigin: "left",
+            zIndex: 0,
+          }}
+        />
+        <span style={{ position: "relative", zIndex: 1 }}>{part.text}</span>
+      </span>
+    ) : (
+      <span key={i} data-word={part.text}>{part.text}</span>
+    )
+  );
 };
 
 const ManifestoSection = () => {
@@ -106,7 +203,19 @@ const ManifestoSection = () => {
                 duration: 0.9,
                 delay: i * 0.15,
                 ease: "power3.out",
-                onStart: () => scrambleLine(line, text),
+                onStart: () => {
+                  scrambleLine(line, text);
+                  // Animate highlight backgrounds
+                  const highlightBgs = line.querySelectorAll<HTMLElement>(".highlight-bg");
+                  highlightBgs.forEach((bg, hIdx) => {
+                    gsap.to(bg, {
+                      scaleX: 1,
+                      duration: 0.6,
+                      delay: i * 0.15 + 0.3 + hIdx * 0.1,
+                      ease: "power3.out",
+                    });
+                  });
+                },
               });
             });
           },
@@ -118,6 +227,9 @@ const ManifestoSection = () => {
               stagger: 0.04,
               ease: "power2.in",
             });
+            // Reset highlights
+            const highlightBgs = block.querySelectorAll<HTMLElement>(".highlight-bg");
+            gsap.set(highlightBgs, { scaleX: 0 });
           },
         });
       });
@@ -126,39 +238,44 @@ const ManifestoSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Wild asymmetric path — loops left, sweeps right, figure-8s, tight curls
-  // Intentionally NOT symmetrical — each curve is unique
+  // Clean elegant path — starts from top-left, smooth flowing S-curves
   const svgPath = `
-    M 270 0
-    C 270 30, 320 80, 380 100
-    C 460 130, 490 180, 440 230
-    C 380 290, 200 260, 140 300
-    C 60 350, 30 430, 100 480
-    C 180 540, 350 500, 420 460
-    C 490 420, 520 460, 480 520
-    C 420 600, 160 580, 80 640
-    C -10 710, 40 800, 160 820
-    C 300 840, 500 780, 520 720
-    C 540 660, 460 620, 380 650
-    C 280 690, 120 760, 100 840
-    C 80 930, 260 980, 380 950
-    C 500 920, 540 860, 480 820
-    C 400 770, 280 810, 220 880
-    C 140 970, 60 1060, 120 1120
-    C 200 1200, 420 1160, 480 1100
-    C 540 1040, 500 980, 420 1020
-    C 320 1070, 100 1120, 60 1200
-    C 20 1300, 180 1380, 320 1360
-    C 460 1340, 520 1280, 460 1240
-    C 380 1190, 200 1230, 140 1300
-    C 80 1380, 100 1480, 200 1520
-    C 320 1560, 480 1500, 500 1440
-    C 520 1380, 420 1360, 340 1400
-    C 240 1450, 100 1520, 120 1600
-    C 140 1680, 300 1740, 420 1720
-    C 520 1700, 500 1640, 400 1660
-    C 280 1690, 140 1760, 200 1840
-    C 260 1900, 300 1920, 270 1960
+    M 0 40
+    C 60 40, 140 60, 200 120
+    C 280 200, 350 280, 420 260
+    C 500 240, 520 160, 480 100
+    C 440 40, 340 60, 300 140
+    C 260 220, 280 340, 380 380
+    C 480 420, 520 360, 500 280
+    C 480 200, 380 160, 300 220
+    C 200 300, 120 420, 160 520
+    C 200 620, 360 640, 440 580
+    C 520 520, 480 440, 400 420
+    C 300 400, 160 480, 120 580
+    C 80 680, 180 780, 300 780
+    C 420 780, 500 700, 480 620
+    C 460 540, 360 500, 280 560
+    C 180 630, 100 740, 140 840
+    C 180 940, 320 980, 420 940
+    C 520 900, 500 820, 420 800
+    C 320 780, 180 840, 140 940
+    C 100 1040, 200 1140, 340 1140
+    C 480 1140, 520 1060, 480 980
+    C 440 900, 320 880, 240 940
+    C 140 1020, 80 1140, 140 1240
+    C 200 1340, 360 1360, 440 1300
+    C 520 1240, 480 1160, 400 1160
+    C 300 1160, 160 1240, 140 1340
+    C 120 1440, 240 1540, 380 1520
+    C 480 1500, 520 1420, 460 1380
+    C 380 1340, 240 1400, 200 1500
+    C 160 1600, 280 1700, 400 1680
+    C 500 1660, 520 1580, 460 1540
+    C 380 1500, 220 1560, 180 1660
+    C 140 1760, 260 1860, 380 1840
+    C 460 1820, 480 1780, 440 1760
+    C 380 1740, 300 1800, 280 1880
+    L 280 1960
   `;
 
   return (
@@ -168,7 +285,7 @@ const ManifestoSection = () => {
       className="relative py-40 md:py-56"
       style={{ background: "hsl(var(--section-dark))" }}
     >
-      {/* SVG flowing wild line — no glow, thick, high opacity */}
+      {/* SVG flowing line — thicker stroke, starts top-left */}
       <svg
         ref={svgRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
@@ -179,12 +296,12 @@ const ManifestoSection = () => {
         <path
           ref={pathRef}
           d={svgPath}
-          stroke="hsl(0 0% 40%)"
-          strokeWidth="2"
+          stroke="hsl(0 0% 35%)"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          opacity="0.9"
+          opacity="0.85"
         />
       </svg>
 
@@ -218,7 +335,7 @@ const ManifestoSection = () => {
                   opacity: 0,
                 }}
               >
-                {line}
+                {renderLineWithHighlights(line)}
               </p>
             ))}
           </div>
