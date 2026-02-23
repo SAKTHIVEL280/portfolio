@@ -94,13 +94,38 @@ const SkillsSection = () => {
     bodiesRef.current = bodies;
     World.add(engine.world, bodies);
 
-    // Mouse constraint
+    // Mouse constraint for dragging
     const mouse = Mouse.create(container);
     const mc = MouseConstraint.create(engine, {
       mouse,
       constraint: { stiffness: 0.2, render: { visible: false } },
     });
     World.add(engine.world, mc);
+
+    // Hover detection: drop static bodies when mouse passes over them
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      bodies.forEach((body) => {
+        if (!body.isStatic) return;
+        const idx = (body as any).skillIndex;
+        if (droppedRef.current.has(idx)) return;
+        if (Matter.Bounds.contains(body.bounds, { x: mx, y: my })) {
+          droppedRef.current.add(idx);
+          // Enable gravity on first drop
+          if (droppedRef.current.size === 1) {
+            engine.gravity.y = 1;
+          }
+          Matter.Body.setStatic(body, false);
+          Matter.Body.applyForce(body, body.position, {
+            x: (Math.random() - 0.5) * 0.02,
+            y: 0.005,
+          });
+        }
+      });
+    };
+    container.addEventListener("mousemove", onMouseMove);
 
     const runner = Runner.create();
     runnerRef.current = runner;
@@ -122,6 +147,7 @@ const SkillsSection = () => {
 
     return () => {
       cancelAnimationFrame(rafId);
+      container.removeEventListener("mousemove", onMouseMove);
       Runner.stop(runner);
       Engine.clear(engine);
     };
@@ -191,9 +217,8 @@ const SkillsSection = () => {
                 background: skill.type === "augmented" ? "hsl(0 0% 8%)" : "hsl(0 0% 95%)",
                 color: skill.type === "augmented" ? "hsl(0 0% 92%)" : "hsl(0 0% 8%)",
                 border: skill.type === "core" ? "1px solid hsl(0 0% 20%)" : "none",
-                pointerEvents: droppedRef.current.has(i) ? "none" : "auto",
+                pointerEvents: "none",
               }}
-              onMouseEnter={() => handlePillHover(i)}
             >
               {skill.label}
             </div>
