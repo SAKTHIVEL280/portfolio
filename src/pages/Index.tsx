@@ -1,13 +1,25 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import SmoothScroll from "@/components/SmoothScroll";
+import DynamicIsland from "@/components/DynamicIsland";
+import HeroSection from "@/components/sections/HeroSection";
+import ManifestoSection from "@/components/sections/ManifestoSection";
+import ProjectsSection from "@/components/sections/ProjectsSection";
+import PhilosophySection from "@/components/sections/PhilosophySection";
+import SkillsSection from "@/components/sections/SkillsSection";
+import FooterSection from "@/components/sections/FooterSection";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <SmoothScroll>
+      <DynamicIsland />
+      <main>
+        <HeroSection />
+        <ManifestoSection />
+        <ProjectsSection />
+        <PhilosophySection />
+        <SkillsSection />
+        <FooterSection />
+      </main>
+    </SmoothScroll>
   );
 };
 
