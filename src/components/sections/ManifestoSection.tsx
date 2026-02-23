@@ -13,7 +13,7 @@ const blocks = [
   {
     lines: [
       "I don't begin with tools or trends.",
-      "I begin with intuition —",
+      "I begin with intuition ~",
       "then turn it into systems.",
     ],
   },
