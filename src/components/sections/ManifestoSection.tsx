@@ -127,9 +127,9 @@ const renderLineWithHighlights = (line: string) => {
           className="highlight-bg"
           style={{
             position: "absolute",
-            inset: "-2px -10px",
-            borderRadius: "8px",
-            background: "hsl(0 0% 22%)",
+            inset: "-4px -12px",
+            borderRadius: "6px",
+            background: "hsl(0 0% 95%)",
             transform: "scaleX(0)",
             transformOrigin: "left",
             zIndex: 0,
@@ -141,7 +141,8 @@ const renderLineWithHighlights = (line: string) => {
           style={{
             position: "relative",
             zIndex: 1,
-            color: "hsl(0 0% 100%)",
+            color: "hsl(0 0% 8%)",
+            transition: "color 0.3s ease",
           }}
         >
           {part.text}
