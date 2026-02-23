@@ -124,42 +124,27 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         ease: "back.out(1.8)",
       }, lastReelStop + 0.65);
 
-      // Phase 4: Hold "100 %" for a moment, then everything turns black
+      // Phase 4: Hold "100 %" then turn everything black
       const blackStart = lastReelStop + 1.6;
+
+      // Hide digits, %, and dividers first
+      tl.to([".reel-digit", percentRef.current, ".reel-divider"], {
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.in",
+      }, blackStart);
 
       // Frame fills black
       tl.to(frameRef.current, {
         backgroundColor: "hsl(0 0% 0%)",
         borderColor: "hsl(0 0% 0%)",
-        duration: 0.6,
+        duration: 0.5,
         ease: "power2.inOut",
-      }, blackStart);
+      }, blackStart + 0.1);
 
-      // All digit text turns white
-      tl.to(".reel-digit", {
-        color: "hsl(0 0% 100%)",
-        duration: 0.6,
-        ease: "power2.inOut",
-      }, blackStart);
+      // Phase 5: Clean black box scales up to fill screen
+      const morphStart = blackStart + 0.8;
 
-      // % turns white
-      tl.to(percentRef.current, {
-        color: "hsl(0 0% 100%)",
-        duration: 0.6,
-        ease: "power2.inOut",
-      }, blackStart);
-
-      // Reel dividers fade
-      tl.to(".reel-divider", {
-        borderColor: "hsl(0 0% 20%)",
-        duration: 0.6,
-        ease: "power2.inOut",
-      }, blackStart);
-
-      // Phase 5: Box scales up smoothly to fill the screen
-      const morphStart = blackStart + 0.9;
-
-      // Scale the entire wrapper (frame + %) together
       tl.to(frameRef.current, {
         scale: 25,
         borderRadius: "0px",
@@ -167,26 +152,19 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         ease: "power3.inOut",
       }, morphStart);
 
-      tl.to(percentRef.current, {
-        scale: 25,
-        opacity: 0,
-        duration: 1.0,
-        ease: "power3.inOut",
-      }, morphStart);
-
       // Background matches black
       tl.to(bgRef.current, {
         background: "hsl(0 0% 0%)",
-        duration: 0.5,
+        duration: 0.4,
         ease: "power2.inOut",
-      }, morphStart + 0.4);
+      }, morphStart + 0.6);
 
-      // Fade out the frame
+      // Fade out frame
       tl.to(frameRef.current, {
         opacity: 0,
-        duration: 0.5,
+        duration: 0.4,
         ease: "power2.in",
-      }, morphStart + 0.9);
+      }, morphStart + 1.0);
     };
 
     run();
