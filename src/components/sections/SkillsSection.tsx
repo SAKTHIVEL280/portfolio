@@ -95,7 +95,8 @@ const SkillsSection = () => {
             scrollTrigger: {
               trigger: cardsRef.current,
               start: "top 80%",
-              toggleActions: "play none none none",
+              end: "top 20%",
+              toggleActions: "play reverse play reverse",
             },
           }
         );

@@ -49,7 +49,7 @@ const PhilosophySection = () => {
             { x: -80, opacity: 0 },
             {
               x: 0, opacity: 1, duration: 1.4, ease: "power4.out",
-              scrollTrigger: { trigger: headingRef.current, start: "top 80%", end: "top 20%", toggleActions: "play reverse play reverse" },
+              scrollTrigger: { trigger: sectionRef.current, start: "top 80%", end: "bottom top", toggleActions: "play none none reverse" },
             }
           );
         }
@@ -58,7 +58,7 @@ const PhilosophySection = () => {
             { x: 80, opacity: 0 },
             {
               x: 0, opacity: 1, duration: 1.4, delay: 0.15, ease: "power4.out",
-              scrollTrigger: { trigger: headingRef.current, start: "top 80%", end: "top 20%", toggleActions: "play reverse play reverse" },
+              scrollTrigger: { trigger: sectionRef.current, start: "top 80%", end: "bottom top", toggleActions: "play none none reverse" },
             }
           );
         }
@@ -135,8 +135,8 @@ const PhilosophySection = () => {
               className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
             >
-              <span className="phil-line-1 block" style={{ opacity: 0 }}>I don't chase innovation.</span>
-              <span className="phil-line-2 block text-muted-foreground" style={{ opacity: 0 }}>I eliminate friction.</span>
+              <span className="phil-line-1 block">I don't chase innovation.</span>
+              <span className="phil-line-2 block text-muted-foreground">I eliminate friction.</span>
             </h2>
           </div>
         </div>
