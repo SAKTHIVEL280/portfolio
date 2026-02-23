@@ -53,9 +53,9 @@ const Index = () => {
 
   return (
     <SmoothScroll>
-      <IntroLoader onComplete={handleIntroComplete} />
+      {!introComplete && <IntroLoader onComplete={handleIntroComplete} />}
       <ScrollProgress />
-      <main ref={mainRef} style={{ opacity: 0 }}>
+      <main ref={mainRef} style={{ opacity: introComplete ? undefined : 0 }}>
         <HeroSection />
         <ManifestoSection />
         <ProjectsSection />

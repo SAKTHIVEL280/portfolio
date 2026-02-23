@@ -49,7 +49,6 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
 
       tl = gsap.timeline({
         onComplete: () => {
-          if (containerRef.current) containerRef.current.style.display = "none";
           onComplete();
           // Refresh ScrollTrigger so sections recalculate after intro is removed
           setTimeout(() => ScrollTrigger.refresh(), 100);
