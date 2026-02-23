@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import SmoothScroll from "@/components/SmoothScroll";
-import DynamicIsland from "@/components/DynamicIsland";
+import Navigation from "@/components/Navigation";
 import IntroLoader from "@/components/IntroLoader";
 import HeroSection from "@/components/sections/HeroSection";
 import ManifestoSection from "@/components/sections/ManifestoSection";
@@ -19,7 +19,7 @@ const Index = () => {
   return (
     <SmoothScroll>
       <IntroLoader onComplete={handleIntroComplete} />
-      <DynamicIsland />
+      <Navigation />
       <main>
         <HeroSection />
         <ManifestoSection />

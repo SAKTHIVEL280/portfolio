@@ -21,6 +21,7 @@ const ProjectsSection = () => {
   const headingRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<HTMLDivElement[]>([]);
   const imageRefs = useRef<HTMLDivElement[]>([]);
+  const titleRefs = useRef<HTMLDivElement[]>([]);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [cursorVisible, setCursorVisible] = useState(false);
 
@@ -66,13 +67,15 @@ const ProjectsSection = () => {
         },
       });
 
-      // Card staggered entrance with scale + clip-path reveal
+      // Card reveal with clip-path + y-axis + rotation for premium feel
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
         gsap.set(card, {
-          clipPath: "inset(15% 5% 15% 5%)",
+          clipPath: "inset(20% 8% 20% 8%)",
           opacity: 0,
-          scale: 0.88,
+          scale: 0.85,
+          y: 80,
+          rotateY: 8,
         });
         ScrollTrigger.create({
           trigger: sectionRef.current,
@@ -83,8 +86,10 @@ const ProjectsSection = () => {
               clipPath: "inset(0% 0% 0% 0%)",
               opacity: 1,
               scale: 1,
-              duration: 1.4,
-              delay: i * 0.18,
+              y: 0,
+              rotateY: 0,
+              duration: 1.6,
+              delay: i * 0.2,
               ease: "power4.out",
             });
           },
@@ -104,6 +109,50 @@ const ProjectsSection = () => {
             scrub: 1,
           },
         });
+      });
+
+      // Title slide-up on horizontal scroll reveal
+      titleRefs.current.forEach((titleEl, i) => {
+        if (!titleEl) return;
+        gsap.fromTo(
+          titleEl,
+          { y: 40, opacity: 0, clipPath: "inset(100% 0 0 0)" },
+          {
+            y: 0,
+            opacity: 1,
+            clipPath: "inset(0% 0 0 0)",
+            duration: 1,
+            delay: i * 0.2 + 0.6,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 70%",
+              toggleActions: "play none none none",
+            },
+          }
+        );
+      });
+
+      // Subtle scale on each card during horizontal scroll
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return;
+        const startFraction = i / projects.length;
+        const endFraction = (i + 1) / projects.length;
+
+        gsap.fromTo(
+          card,
+          { scale: 0.95 },
+          {
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: () => `top+=${totalWidth * startFraction} top`,
+              end: () => `top+=${totalWidth * endFraction} top`,
+              scrub: 1,
+            },
+          }
+        );
       });
     }, sectionRef);
 
@@ -136,7 +185,7 @@ const ProjectsSection = () => {
         className="overflow-hidden"
         style={{ background: "hsl(var(--section-dark))" }}
       >
-        <div ref={trackRef} className="flex h-screen items-center gap-8 px-16 will-change-transform" style={{ width: "fit-content" }}>
+        <div ref={trackRef} className="flex h-screen items-center gap-8 px-16 will-change-transform" style={{ width: "fit-content", perspective: "1200px" }}>
           {/* Section label */}
           <div ref={headingRef} className="flex-shrink-0 w-[30vw] flex flex-col justify-center pr-8" style={{ perspective: "600px" }}>
             <h2
@@ -161,6 +210,7 @@ const ProjectsSection = () => {
               key={i}
               ref={(el) => { if (el) cardRefs.current[i] = el; }}
               className="flex-shrink-0 w-[60vw] md:w-[40vw] flex flex-col gap-4 cursor-none"
+              style={{ transformStyle: "preserve-3d" }}
               onMouseEnter={() => setCursorVisible(true)}
               onMouseLeave={() => setCursorVisible(false)}
             >
@@ -178,7 +228,9 @@ const ProjectsSection = () => {
                   />
                 </div>
               </div>
-              <div>
+              <div
+                ref={(el) => { if (el) titleRefs.current[i] = el; }}
+              >
                 <h3
                   className="text-2xl md:text-3xl font-bold"
                   style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
