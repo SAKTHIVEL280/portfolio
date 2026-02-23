@@ -42,25 +42,10 @@ const ProjectsSection = () => {
         },
       });
 
-      // Card entrance animations
-      cardRefs.current.forEach((card, i) => {
+      // Card entrance — simple fade in once pinned
+      cardRefs.current.forEach((card) => {
         if (!card) return;
-        gsap.fromTo(
-          card,
-          { y: 80, opacity: 0, scale: 0.92 },
-          {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            duration: 1.2,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: `top+=${i * 200} top`,
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
+        gsap.set(card, { y: 0, opacity: 1, scale: 1 });
       });
     }, sectionRef);
 

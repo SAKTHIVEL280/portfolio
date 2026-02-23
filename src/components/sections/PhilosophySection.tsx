@@ -54,7 +54,7 @@ const PhilosophySection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="philosophy" className="min-h-[300vh] relative" style={{ background: "hsl(var(--section-dark))" }}>
+    <section ref={sectionRef} id="philosophy" className="min-h-[300vh] relative pb-0" style={{ background: "hsl(var(--section-dark))" }}>
       <div className="flex flex-col md:flex-row">
         {/* Sticky left heading */}
         <div className="md:w-1/2 md:h-screen md:sticky md:top-0 flex items-center px-8 md:px-16 py-20 md:py-0">
@@ -69,7 +69,7 @@ const PhilosophySection = () => {
         </div>
 
         {/* Scrolling right principles */}
-        <div className="md:w-1/2 flex flex-col gap-0 px-8 md:px-16 pb-32">
+        <div className="md:w-1/2 flex flex-col gap-0 px-8 md:px-16 pb-8">
           {principles.map((p, i) => (
             <div
               key={i}
