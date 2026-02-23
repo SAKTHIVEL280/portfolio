@@ -27,26 +27,12 @@ const preloadImages = (): Promise<void> => {
 
 const REEL_DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-// SVG morph paths — circle → organic blob → rectangle that fills screen
-const MORPH_PATHS = [
-  // Circle
-  "M 50,10 C 72,10 90,28 90,50 C 90,72 72,90 50,90 C 28,90 10,72 10,50 C 10,28 28,10 50,10 Z",
-  // Organic blob
-  "M 50,2 C 78,2 98,18 98,50 C 98,82 78,98 50,98 C 22,98 2,82 2,50 C 2,18 22,2 50,2 Z",
-  // Rounded rect expanding
-  "M 50,-20 C 120,-20 120,-20 120,50 C 120,120 120,120 50,120 C -20,120 -20,120 -20,50 C -20,-20 -20,-20 50,-20 Z",
-  // Full screen rect
-  "M 50,-60 C 160,-60 160,-60 160,50 C 160,160 160,160 50,160 C -60,160 -60,160 -60,50 C -60,-60 -60,-60 50,-60 Z",
-];
-
 const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const leverArmRef = useRef<HTMLDivElement>(null);
   const leverKnobRef = useRef<HTMLDivElement>(null);
   const reelRefs = useRef<HTMLDivElement[]>([]);
   const frameRef = useRef<HTMLDivElement>(null);
-  const morphRef = useRef<SVGPathElement>(null);
-  const morphSvgRef = useRef<SVGSVGElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -129,57 +115,44 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         repeat: 1,
       }, lastReelStop + 0.05);
 
-      // Phase 4: Content fades out
+      // Phase 4: Lever fades, frame stays
       tl.to(
-        [frameRef.current, leverArmRef.current],
-        { opacity: 0, scale: 0.85, duration: 0.5, ease: "power3.in" },
+        leverArmRef.current,
+        { opacity: 0, x: 20, duration: 0.4, ease: "power3.in" },
         lastReelStop + 0.4
       );
 
-      // Phase 5: Black morph — circle appears at center, morphs into blob, expands to fill screen
-      tl.set(morphSvgRef.current, { opacity: 1 }, lastReelStop + 0.7);
+      // Phase 5: Frame morphs — it scales up to fill the entire screen and goes black
+      // First: change frame background to black, text to white
+      tl.to(frameRef.current, {
+        backgroundColor: "hsl(0 0% 0%)",
+        borderColor: "hsl(0 0% 0%)",
+        color: "hsl(0 0% 100%)",
+        duration: 0.4,
+        ease: "power2.inOut",
+      }, lastReelStop + 0.6);
 
-      tl.fromTo(
-        morphRef.current,
-        { attr: { d: MORPH_PATHS[0] }, scale: 0 },
-        { scale: 1, duration: 0.4, ease: "back.out(1.5)", transformOrigin: "50% 50%" },
-        lastReelStop + 0.7
-      );
+      // Scale the frame to fill the viewport
+      tl.to(frameRef.current, {
+        scale: 12,
+        borderRadius: "0px",
+        duration: 1,
+        ease: "power3.inOut",
+      }, lastReelStop + 0.8);
 
-      // Morph to blob
-      tl.to(
-        morphRef.current,
-        { attr: { d: MORPH_PATHS[1] }, duration: 0.3, ease: "power2.inOut" },
-        lastReelStop + 1.0
-      );
+      // Fade out frame contents (digits become invisible during scale)
+      tl.to(frameRef.current, {
+        opacity: 0,
+        duration: 0.4,
+        ease: "power2.in",
+      }, lastReelStop + 1.5);
 
-      // Morph to rounded rect
-      tl.to(
-        morphRef.current,
-        { attr: { d: MORPH_PATHS[2] }, duration: 0.3, ease: "power2.inOut" },
-        lastReelStop + 1.25
-      );
-
-      // Morph to full screen
-      tl.to(
-        morphRef.current,
-        { attr: { d: MORPH_PATHS[3] }, duration: 0.35, ease: "power3.in" },
-        lastReelStop + 1.5
-      );
-
-      // Background transitions to black smoothly
-      tl.to(
-        bgRef.current,
-        { background: "hsl(0 0% 0%)", duration: 0.5, ease: "power2.inOut" },
-        lastReelStop + 1.5
-      );
-
-      // Morph SVG fades out smoothly to reveal site
-      tl.to(
-        morphSvgRef.current,
-        { opacity: 0, duration: 0.8, ease: "power2.inOut" },
-        lastReelStop + 1.9
-      );
+      // Background transitions to black
+      tl.to(bgRef.current, {
+        background: "hsl(0 0% 0%)",
+        duration: 0.3,
+        ease: "power2.inOut",
+      }, lastReelStop + 1.4);
     };
 
     run();
@@ -201,33 +174,20 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         style={{ background: "hsl(0 0% 100%)" }}
       />
 
-      {/* Morph SVG overlay */}
-      <svg
-        ref={morphSvgRef}
-        className="absolute inset-0 w-full h-full z-[2]"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        style={{ opacity: 0 }}
-      >
-        <path
-          ref={morphRef}
-          d={MORPH_PATHS[0]}
-          fill="hsl(0 0% 0%)"
-        />
-      </svg>
-
       {/* Center content */}
       <div className="absolute inset-0 z-[3] flex items-center justify-center">
         <div className="flex items-center gap-6 md:gap-10">
           {/* Slot frame */}
-          <div ref={frameRef} style={{ opacity: 0 }}>
-            <div
-              className="flex items-center gap-3 md:gap-4 px-8 md:px-14 py-6 md:py-8 rounded-2xl"
-              style={{
-                border: "2px solid hsl(0 0% 0%)",
-                borderRadius: "20px",
-              }}
-            >
+          <div
+            ref={frameRef}
+            className="flex items-center gap-3 md:gap-4 px-8 md:px-14 py-6 md:py-8 overflow-hidden"
+            style={{
+              opacity: 0,
+              border: "2px solid hsl(0 0% 0%)",
+              borderRadius: "20px",
+              background: "hsl(0 0% 100%)",
+            }}
+          >
               {[0, 1, 2].map((reelIdx) => (
                 <div
                   key={reelIdx}
@@ -258,7 +218,18 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
                   </div>
                 </div>
               ))}
-            </div>
+
+              {/* % symbol */}
+              <span
+                className="self-end mb-1 ml-1 font-bold select-none"
+                style={{
+                  fontSize: digitH * 0.35,
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  color: "hsl(0 0% 0%)",
+                }}
+              >
+                %
+              </span>
           </div>
 
           {/* Lever */}
