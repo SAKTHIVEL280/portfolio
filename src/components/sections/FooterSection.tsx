@@ -111,18 +111,18 @@ const FooterSection = () => {
         </svg>
       </div>
 
-      {/* Curved dark container with rounded top edges */}
+      {/* Contact container with rounded top */}
       <div
         ref={contentRef}
         className="relative min-h-[80vh] flex flex-col justify-end px-8 md:px-16 pb-8 md:pb-16"
         style={{
           background: "hsl(0 0% 4%)",
           color: "hsl(0 0% 96%)",
-          borderRadius: "32px 32px 0 0",
-          marginTop: "-2px",
+          borderRadius: "48px 48px 0 0",
+          marginTop: "-48px",
         }}
       >
-        <div className="flex-1 flex items-center">
+        <div className="flex-1 flex items-center pt-16">
           <div>
             <h2
               ref={headingRef}

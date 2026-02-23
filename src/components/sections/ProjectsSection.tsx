@@ -32,7 +32,7 @@ const ProjectsSection = () => {
 
       const totalWidth = track.scrollWidth - window.innerWidth;
 
-      // Heading entrance — repeatable
+      // Heading entrance
       if (headingRef.current) {
         const chars = headingRef.current.querySelectorAll(".heading-char");
         gsap.set(chars, { y: 120, opacity: 0, rotateX: 90 });
@@ -54,66 +54,29 @@ const ProjectsSection = () => {
         });
       }
 
-      // Horizontal scroll
-      gsap.to(track, {
-        x: -totalWidth,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: () => `+=${totalWidth}`,
-          pin: true,
-          scrub: 0.8,
-          invalidateOnRefresh: true,
-        },
+      // Horizontal scroll pinning
+      const hScrollTrigger = ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: () => `+=${totalWidth}`,
+        pin: true,
+        scrub: 0.8,
+        invalidateOnRefresh: true,
+        animation: gsap.to(track, { x: -totalWidth, ease: "none" }),
       });
 
-      // Card reveal — toggleActions so it replays on every scroll
-      cardRefs.current.forEach((card, i) => {
-        if (!card) return;
-
-        // Each card animates as it enters the viewport during horizontal scroll
-        gsap.fromTo(
-          card,
-          {
-            clipPath: "inset(15% 5% 15% 5%)",
-            opacity: 0,
-            scale: 0.88,
-            y: 60,
-          },
-          {
-            clipPath: "inset(0% 0% 0% 0%)",
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 1.4,
-            ease: "power4.out",
-            scrollTrigger: {
-              trigger: card,
-              containerAnimation: gsap.getById?.("hscroll") || undefined,
-              start: "left 90%",
-              end: "left 40%",
-              scrub: 1,
-              // Use the section's horizontal scroll trigger
-              horizontal: true,
-            },
-          }
-        );
-      });
-
-      // Since containerAnimation needs reference, use simpler approach:
-      // Animate cards based on section scroll progress
+      // Card reveal animations — scrub-based so they animate every scroll direction
       const totalCards = projects.length;
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
-        const startPct = i / (totalCards + 1);
-        const endPct = (i + 0.8) / (totalCards + 1);
+        const startPct = (i + 0.2) / (totalCards + 1);
+        const endPct = (i + 0.9) / (totalCards + 1);
 
         gsap.fromTo(
           card,
-          { clipPath: "inset(12% 4% 12% 4%)", opacity: 0.3, scale: 0.9 },
+          { y: 80, opacity: 0, scale: 0.92 },
           {
-            clipPath: "inset(0% 0% 0% 0%)",
+            y: 0,
             opacity: 1,
             scale: 1,
             ease: "power3.out",
@@ -121,13 +84,13 @@ const ProjectsSection = () => {
               trigger: sectionRef.current,
               start: () => `top+=${totalWidth * startPct} top`,
               end: () => `top+=${totalWidth * endPct} top`,
-              scrub: 0.8,
+              scrub: 0.6,
             },
           }
         );
       });
 
-      // Parallax images
+      // Parallax on images
       imageRefs.current.forEach((img) => {
         if (!img) return;
         gsap.to(img, {
@@ -142,25 +105,24 @@ const ProjectsSection = () => {
         });
       });
 
-      // Title slide-up — scrub-based so it replays
+      // Title slide-up — scrub-based
       titleRefs.current.forEach((titleEl, i) => {
         if (!titleEl) return;
-        const startPct = (i + 0.3) / (totalCards + 1);
-        const endPct = (i + 0.7) / (totalCards + 1);
+        const startPct = (i + 0.4) / (totalCards + 1);
+        const endPct = (i + 0.85) / (totalCards + 1);
 
         gsap.fromTo(
           titleEl,
-          { y: 30, opacity: 0, clipPath: "inset(100% 0 0 0)" },
+          { y: 40, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            clipPath: "inset(0% 0 0 0)",
             ease: "power3.out",
             scrollTrigger: {
               trigger: sectionRef.current,
               start: () => `top+=${totalWidth * startPct} top`,
               end: () => `top+=${totalWidth * endPct} top`,
-              scrub: 0.8,
+              scrub: 0.6,
             },
           }
         );
@@ -193,7 +155,7 @@ const ProjectsSection = () => {
         className="overflow-hidden"
         style={{ background: "hsl(var(--section-dark))" }}
       >
-        <div ref={trackRef} className="flex h-screen items-center gap-8 px-16 will-change-transform" style={{ width: "fit-content", perspective: "1200px" }}>
+        <div ref={trackRef} className="flex h-screen items-center gap-8 px-16 will-change-transform" style={{ width: "fit-content" }}>
           <div ref={headingRef} className="flex-shrink-0 w-[30vw] flex flex-col justify-center pr-8" style={{ perspective: "600px" }}>
             <h2
               className="text-5xl md:text-7xl font-bold leading-tight overflow-hidden"
@@ -213,7 +175,6 @@ const ProjectsSection = () => {
               key={i}
               ref={(el) => { if (el) cardRefs.current[i] = el; }}
               className="flex-shrink-0 w-[60vw] md:w-[40vw] flex flex-col gap-4 cursor-none"
-              style={{ transformStyle: "preserve-3d" }}
               onMouseEnter={() => setCursorVisible(true)}
               onMouseLeave={() => setCursorVisible(false)}
             >
