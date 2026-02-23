@@ -34,6 +34,7 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
   const reelRefs = useRef<HTMLDivElement[]>([]);
   const frameRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
+  const percentRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     let tl: gsap.core.Timeline;
@@ -41,6 +42,7 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
     const run = async () => {
       const preloadPromise = preloadImages();
       const digitH = window.innerWidth < 768 ? 80 : 130;
+      const cellH = digitH * 1.15;
       const targets = [21, 20, 20];
 
       tl = gsap.timeline({
@@ -50,7 +52,7 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         },
       });
 
-      // Phase 0: Entrance
+      // Phase 0: Entrance — frame fades in, lever fades in
       tl.fromTo(
         frameRef.current,
         { opacity: 0, scale: 0.9 },
@@ -65,17 +67,17 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         0.5
       );
 
+      // % starts hidden
+      tl.set(percentRef.current, { opacity: 0, scale: 0 }, 0);
+
       // Phase 1: Pull lever
-      tl.to(
-        leverKnobRef.current,
-        { y: 80, duration: 0.35, ease: "power2.in" },
-        1.2
-      );
-      tl.to(
-        leverKnobRef.current,
-        { y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" },
-        1.55
-      );
+      tl.to(leverKnobRef.current, {
+        y: 80, duration: 0.35, ease: "power2.in",
+      }, 1.2);
+
+      tl.to(leverKnobRef.current, {
+        y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)",
+      }, 1.55);
 
       // Phase 2: Reels spin
       await preloadPromise;
@@ -85,7 +87,6 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         const inner = reel.querySelector(".reel-inner") as HTMLElement;
         if (!inner) return;
 
-        const cellH = digitH * 1.15;
         const targetY = -(targets[i] * cellH);
         const fullCycleY = 10 * cellH;
         const spinDelay = i * 0.35;
@@ -103,56 +104,75 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         }, 1.55 + spinDelay + 1.0 + i * 0.25);
       });
 
-      // Phase 3: All reels landed — brief hold
       const lastReelStop = 1.55 + 2 * 0.35 + 1.0 + 2 * 0.25 + 0.7; // ~4.15
 
       // Bounce on land
       tl.to(frameRef.current, {
-        scale: 1.03,
-        duration: 0.12,
-        ease: "power2.out",
-        yoyo: true,
-        repeat: 1,
+        scale: 1.03, duration: 0.12, ease: "power2.out", yoyo: true, repeat: 1,
       }, lastReelStop + 0.05);
 
-      // Phase 4: Lever fades, frame stays
-      tl.to(
-        leverArmRef.current,
-        { opacity: 0, x: 20, duration: 0.4, ease: "power3.in" },
-        lastReelStop + 0.4
-      );
+      // Phase 3: Lever morphs into % symbol
+      // Lever shrinks and moves toward the frame
+      tl.to(leverArmRef.current, {
+        scale: 0,
+        x: -40,
+        opacity: 0,
+        duration: 0.5,
+        ease: "power3.in",
+      }, lastReelStop + 0.3);
 
-      // Phase 5: Frame morphs — it scales up to fill the entire screen and goes black
-      // First: change frame background to black, text to white
+      // % symbol appears with a pop
+      tl.to(percentRef.current, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.5,
+        ease: "back.out(2)",
+      }, lastReelStop + 0.6);
+
+      // Phase 4: Hold for a beat, then box turns black
       tl.to(frameRef.current, {
         backgroundColor: "hsl(0 0% 0%)",
         borderColor: "hsl(0 0% 0%)",
-        color: "hsl(0 0% 100%)",
-        duration: 0.4,
+        duration: 0.5,
         ease: "power2.inOut",
-      }, lastReelStop + 0.6);
+      }, lastReelStop + 1.3);
 
-      // Scale the frame to fill the viewport
+      // Digits and % fade to white
+      const allDigits = frameRef.current?.querySelectorAll(".reel-inner div, .percent-symbol");
+      if (allDigits) {
+        tl.to(allDigits, {
+          color: "hsl(0 0% 100%)",
+          duration: 0.5,
+          ease: "power2.inOut",
+        }, lastReelStop + 1.3);
+      }
+      tl.to(percentRef.current, {
+        color: "hsl(0 0% 100%)",
+        duration: 0.5,
+        ease: "power2.inOut",
+      }, lastReelStop + 1.3);
+
+      // Phase 5: Box scales up to fill the entire screen
       tl.to(frameRef.current, {
-        scale: 12,
+        scale: 20,
         borderRadius: "0px",
-        duration: 1,
-        ease: "power3.inOut",
-      }, lastReelStop + 0.8);
+        duration: 1.2,
+        ease: "power4.inOut",
+      }, lastReelStop + 1.8);
 
-      // Fade out frame contents (digits become invisible during scale)
+      // Content inside fades during scale
       tl.to(frameRef.current, {
         opacity: 0,
-        duration: 0.4,
+        duration: 0.5,
         ease: "power2.in",
-      }, lastReelStop + 1.5);
+      }, lastReelStop + 2.5);
 
-      // Background transitions to black
+      // Background goes black to seamlessly match
       tl.to(bgRef.current, {
         background: "hsl(0 0% 0%)",
-        duration: 0.3,
+        duration: 0.4,
         ease: "power2.inOut",
-      }, lastReelStop + 1.4);
+      }, lastReelStop + 2.3);
     };
 
     run();
@@ -188,48 +208,50 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
               background: "hsl(0 0% 100%)",
             }}
           >
-              {[0, 1, 2].map((reelIdx) => (
-                <div
-                  key={reelIdx}
-                  ref={(el) => { if (el) reelRefs.current[reelIdx] = el; }}
-                  className="overflow-hidden"
-                  style={{
-                    height: digitH * 1.15,
-                    width: digitH * 0.75,
-                    borderRight: reelIdx < 2 ? "1px solid hsl(0 0% 85%)" : "none",
-                  }}
-                >
-                  <div className="reel-inner" style={{ willChange: "transform" }}>
-                    {REEL_DIGITS.map((d, dIdx) => (
-                      <div
-                        key={dIdx}
-                        className="flex items-center justify-center font-bold select-none"
-                        style={{
-                          height: digitH * 1.15,
-                          fontSize: digitH * 0.75,
-                          fontFamily: "'Space Grotesk', sans-serif",
-                          color: "hsl(0 0% 0%)",
-                          lineHeight: 1,
-                        }}
-                      >
-                        {d}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {/* % symbol */}
-              <span
-                className="self-end mb-1 ml-1 font-bold select-none"
+            {[0, 1, 2].map((reelIdx) => (
+              <div
+                key={reelIdx}
+                ref={(el) => { if (el) reelRefs.current[reelIdx] = el; }}
+                className="overflow-hidden"
                 style={{
-                  fontSize: digitH * 0.35,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  color: "hsl(0 0% 0%)",
+                  height: digitH * 1.15,
+                  width: digitH * 0.75,
+                  borderRight: reelIdx < 2 ? "1px solid hsl(0 0% 85%)" : "none",
                 }}
               >
-                %
-              </span>
+                <div className="reel-inner" style={{ willChange: "transform" }}>
+                  {REEL_DIGITS.map((d, dIdx) => (
+                    <div
+                      key={dIdx}
+                      className="flex items-center justify-center font-bold select-none"
+                      style={{
+                        height: digitH * 1.15,
+                        fontSize: digitH * 0.75,
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        color: "hsl(0 0% 0%)",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {d}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* % symbol — starts hidden, appears when lever morphs */}
+            <span
+              ref={percentRef}
+              className="percent-symbol self-start mt-1 md:mt-2 ml-1 font-bold select-none"
+              style={{
+                fontSize: digitH * 0.4,
+                fontFamily: "'Space Grotesk', sans-serif",
+                color: "hsl(0 0% 0%)",
+                opacity: 0,
+              }}
+            >
+              %
+            </span>
           </div>
 
           {/* Lever */}
