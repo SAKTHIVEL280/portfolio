@@ -65,76 +65,15 @@ const ProjectsSection = () => {
         animation: gsap.to(track, { x: -totalWidth, ease: "none" }),
       });
 
-      // Card reveal — first card visible, others animate in on scroll
-      cardRefs.current.forEach((card, i) => {
+      // Cards and titles are always visible — horizontal scroll reveals them naturally
+      cardRefs.current.forEach((card) => {
         if (!card) return;
-        if (i === 0) {
-          gsap.set(card, { opacity: 1, y: 0, scale: 1 });
-        } else {
-          gsap.set(card, { opacity: 0, y: 50, scale: 0.95 });
-        }
+        gsap.set(card, { opacity: 1, y: 0, scale: 1 });
       });
 
-      // Use a single scrub-linked timeline for card reveals based on scroll progress
-      const cardTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: () => `+=${totalWidth}`,
-          scrub: 0.6,
-        },
-      });
-
-      cardRefs.current.forEach((card, i) => {
-        if (!card || i === 0) return;
-        const progress = (i - 0.5) / Math.max(projects.length, 1);
-        cardTimeline.to(card, {
-          opacity: 1, y: 0, scale: 1,
-          duration: 0.2, ease: "power2.out",
-        }, progress);
-      });
-
-      // Parallax on images
-      imageRefs.current.forEach((img) => {
-        if (!img) return;
-        gsap.to(img, {
-          xPercent: -8,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: () => `+=${totalWidth}`,
-            scrub: 1,
-          },
-        });
-      });
-
-      // Title animations — first visible, rest scrub in
-      titleRefs.current.forEach((titleEl, i) => {
+      titleRefs.current.forEach((titleEl) => {
         if (!titleEl) return;
-        if (i === 0) {
-          gsap.set(titleEl, { y: 0, opacity: 1 });
-        } else {
-          gsap.set(titleEl, { y: 30, opacity: 0 });
-        }
-      });
-
-      const titleTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: () => `+=${totalWidth}`,
-          scrub: 0.6,
-        },
-      });
-
-      titleRefs.current.forEach((titleEl, i) => {
-        if (!titleEl || i === 0) return;
-        const progress = (i - 0.5) / Math.max(projects.length, 1);
-        titleTimeline.to(titleEl, {
-          y: 0, opacity: 1,
-          duration: 0.2, ease: "power2.out",
-        }, progress + 0.03);
+        gsap.set(titleEl, { y: 0, opacity: 1 });
       });
     }, sectionRef);
 
