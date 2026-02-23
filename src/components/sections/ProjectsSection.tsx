@@ -1,19 +1,24 @@
 import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import redactifyImg from "@/assets/redactify.png";
+import voicesopImg from "@/assets/voicesop.png";
+import myluqImg from "@/assets/myluq.png";
+import daeqImg from "@/assets/daeq.png";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const projects = [
-  { title: "Redactify", domains: ["AI Security", "Privacy"], color: "#1a1a1a" },
-  { title: "VoiceSOP", domains: ["Applied AI", "Automation"], color: "#0d0d0d" },
-  { title: "MyLuQ", domains: ["Systems Engineering", "Rust"], color: "#141414" },
-  { title: "daeq.in", domains: ["Design", "User Experience"], color: "#111111" },
+  { title: "Redactify", domains: ["AI Security", "Privacy"], image: redactifyImg },
+  { title: "VoiceSOP", domains: ["Applied AI", "Automation"], image: voicesopImg },
+  { title: "MyLuQ", domains: ["Systems Engineering", "Rust"], image: myluqImg },
+  { title: "daeq.in", domains: ["Design", "User Experience"], image: daeqImg },
 ];
 
 const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<HTMLDivElement[]>([]);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [cursorVisible, setCursorVisible] = useState(false);
 
@@ -35,6 +40,27 @@ const ProjectsSection = () => {
           scrub: 0.8,
           invalidateOnRefresh: true,
         },
+      });
+
+      // Card entrance animations
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return;
+        gsap.fromTo(
+          card,
+          { y: 80, opacity: 0, scale: 0.92 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: `top+=${i * 200} top`,
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
       });
     }, sectionRef);
 
@@ -80,27 +106,19 @@ const ProjectsSection = () => {
           {projects.map((project, i) => (
             <div
               key={i}
+              ref={(el) => { if (el) cardRefs.current[i] = el; }}
               className="flex-shrink-0 w-[60vw] md:w-[40vw] flex flex-col gap-4 cursor-none"
               onMouseEnter={() => setCursorVisible(true)}
               onMouseLeave={() => setCursorVisible(false)}
             >
-              {/* Placeholder image */}
-              <div
-                className="w-full aspect-[4/3] flex items-center justify-center relative overflow-hidden"
-                style={{ background: project.color }}
-              >
-                {/* Abstract geometric placeholder */}
-                <svg viewBox="0 0 400 300" className="w-full h-full opacity-20" fill="none">
-                  <rect x="50" y="50" width="120" height="120" stroke="hsl(var(--foreground))" strokeWidth="0.5" transform={`rotate(${i * 15} 110 110)`} />
-                  <circle cx="280" cy="150" r="60" stroke="hsl(var(--foreground))" strokeWidth="0.5" />
-                  <line x1="0" y1="200" x2="400" y2="100" stroke="hsl(var(--foreground))" strokeWidth="0.3" />
-                </svg>
-                <span
-                  className="absolute text-8xl font-bold opacity-5 select-none"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
-                >
-                  0{i + 1}
-                </span>
+              {/* Project image */}
+              <div className="w-full aspect-[4/3] relative overflow-hidden rounded-sm">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               </div>
               <div>
                 <h3

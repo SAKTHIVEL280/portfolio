@@ -65,7 +65,6 @@ const ManifestoSection = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const glowRef = useRef<SVGPathElement>(null);
-  const dotRef = useRef<SVGCircleElement>(null);
   const blockRefs = useRef<HTMLDivElement[]>([]);
 
   useEffect(() => {
@@ -93,39 +92,6 @@ const ManifestoSection = () => {
       drawTl.to(path, { strokeDashoffset: 0, ease: "none" }, 0);
       if (glowRef.current) {
         drawTl.to(glowRef.current, { strokeDashoffset: 0, ease: "none" }, 0);
-      }
-
-      // Animate dot along path
-      if (dotRef.current) {
-        drawTl.to(
-          dotRef.current,
-          {
-            motionPath: {
-              path: path,
-              align: path,
-              alignOrigin: [0.5, 0.5],
-            },
-            ease: "none",
-          },
-          0
-        );
-
-        // We'll manually position the dot using scroll progress
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          start: "top 60%",
-          end: "bottom 30%",
-          scrub: 0.6,
-          onUpdate: (self) => {
-            if (!dotRef.current || !path) return;
-            const point = path.getPointAtLength(self.progress * length);
-            const svgEl = svgRef.current;
-            if (!svgEl) return;
-            dotRef.current.setAttribute("cx", String(point.x));
-            dotRef.current.setAttribute("cy", String(point.y));
-            dotRef.current.style.opacity = self.progress > 0.01 ? "1" : "0";
-          },
-        });
       }
 
       // Text reveal per block
@@ -169,31 +135,37 @@ const ManifestoSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Loopy, organic flowing path with actual loops and figure-eights
+  // Loopy, flowing path with actual loops, figure-eights, and smooth curves
   const svgPath = `
-    M -20 20
-    C 80 20, 120 100, 200 120
-    C 280 140, 340 60, 380 120
-    C 420 180, 360 260, 300 280
-    C 240 300, 180 240, 160 300
-    C 140 360, 200 420, 280 400
-    C 360 380, 420 320, 460 380
-    C 500 440, 440 520, 380 540
-    C 320 560, 240 500, 200 560
-    C 160 620, 220 700, 300 720
-    C 380 740, 460 680, 480 740
-    C 500 800, 420 860, 360 880
-    C 300 900, 220 840, 180 900
-    C 140 960, 200 1040, 280 1060
-    C 360 1080, 440 1020, 460 1080
-    C 480 1140, 400 1200, 340 1220
-    C 280 1240, 200 1180, 160 1240
-    C 120 1300, 180 1380, 260 1400
-    C 340 1420, 420 1360, 460 1420
-    C 500 1480, 440 1560, 360 1580
-    C 280 1600, 200 1540, 160 1600
-    C 120 1660, 200 1740, 300 1760
-    C 400 1780, 480 1720, 500 1800
+    M -10 40
+    C 60 10, 140 10, 200 60
+    C 260 110, 220 200, 160 220
+    C 100 240, 60 180, 100 140
+    C 140 100, 220 120, 260 180
+    Q 300 240, 340 200
+    C 380 160, 420 100, 400 180
+    C 380 260, 300 300, 260 340
+    C 220 380, 280 440, 340 420
+    C 400 400, 440 340, 460 400
+    Q 480 460, 440 500
+    C 400 540, 320 520, 280 560
+    C 240 600, 300 680, 360 660
+    C 420 640, 460 580, 480 640
+    C 500 700, 440 760, 380 780
+    Q 320 800, 280 840
+    C 240 880, 300 940, 360 920
+    C 420 900, 460 840, 480 900
+    C 500 960, 440 1020, 380 1040
+    C 320 1060, 240 1020, 220 1080
+    C 200 1140, 260 1200, 340 1180
+    Q 420 1160, 460 1220
+    C 500 1280, 440 1340, 380 1360
+    C 320 1380, 240 1340, 200 1400
+    C 160 1460, 220 1540, 300 1540
+    C 380 1540, 440 1480, 480 1540
+    Q 520 1600, 460 1660
+    C 400 1720, 300 1700, 240 1740
+    C 180 1780, 240 1840, 340 1820
   `;
 
   return (
@@ -207,13 +179,13 @@ const ManifestoSection = () => {
       <svg
         ref={svgRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 520 1820"
+        viewBox="0 0 520 1860"
         preserveAspectRatio="none"
         fill="none"
       >
         <defs>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="4" result="blur" />
+          <filter id="lineGlow">
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -225,34 +197,25 @@ const ManifestoSection = () => {
         <path
           ref={glowRef}
           d={svgPath}
-          stroke="hsl(0 0% 30%)"
-          strokeWidth="6"
+          stroke="hsl(0 0% 25%)"
+          strokeWidth="8"
           strokeLinecap="round"
+          strokeLinejoin="round"
           fill="none"
-          opacity="0.3"
-          filter="url(#glow)"
+          opacity="0.2"
+          filter="url(#lineGlow)"
         />
 
-        {/* Main line */}
+        {/* Main line — thicker */}
         <path
           ref={pathRef}
           d={svgPath}
-          stroke="hsl(0 0% 25%)"
-          strokeWidth="3"
+          stroke="hsl(0 0% 22%)"
+          strokeWidth="4"
           strokeLinecap="round"
+          strokeLinejoin="round"
           fill="none"
-          opacity="0.6"
-        />
-
-        {/* Traveling dot */}
-        <circle
-          ref={dotRef}
-          cx="-20"
-          cy="20"
-          r="5"
-          fill="hsl(0 0% 70%)"
-          opacity="0"
-          filter="url(#glow)"
+          opacity="0.5"
         />
       </svg>
 
