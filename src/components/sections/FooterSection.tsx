@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowUpRight } from "lucide-react";
 import Magnetic from "../Magnetic";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -82,10 +83,11 @@ const FooterSection = () => {
               <Magnetic strength={30} className="inline-block">
                 <a
                   href="mailto:sakthivel.hsr06@gmail.com"
-                  className="text-xl md:text-3xl lg:text-4xl font-medium border-b-2 border-current pb-2 hover:opacity-60 transition-opacity duration-300"
+                  className="text-xl md:text-3xl lg:text-4xl font-medium border-b-2 border-current pb-2 hover:opacity-60 transition-opacity duration-300 inline-flex items-center gap-3"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   sakthivel.hsr06@gmail.com
+                  <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10" />
                 </a>
               </Magnetic>
             </div>
