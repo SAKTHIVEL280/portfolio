@@ -25,22 +25,25 @@ const preloadImages = (): Promise<void> => {
   });
 };
 
-const STRIP_COUNT = 6;
-
 const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const nameRef = useRef<HTMLSpanElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const taglineRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
-  const stripsRef = useRef<HTMLDivElement>(null);
+  const digitRefs = useRef<HTMLDivElement[]>([]);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const percentRef = useRef<HTMLSpanElement>(null);
+  const curtainTopRef = useRef<HTMLDivElement>(null);
+  const curtainBottomRef = useRef<HTMLDivElement>(null);
+  const currentValue = useRef(0);
 
   useEffect(() => {
     let tl: gsap.core.Timeline;
 
     const run = async () => {
       const preloadPromise = preloadImages();
+
+      // Each digit column has numbers 0-9 stacked vertically
+      // We'll animate translateY to "scroll" to the right digit
+      const digitHeight = 100; // vh units conceptually, but we use pixel calc
 
       tl = gsap.timeline({
         onComplete: () => {
@@ -49,102 +52,100 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         },
       });
 
-      // Phase 1: Content entrance
+      // Fade in the dot and digits
       tl.fromTo(
-        nameRef.current,
-        { opacity: 0, y: 40, letterSpacing: "0.3em" },
-        { opacity: 1, y: 0, letterSpacing: "0.05em", duration: 1, ease: "power3.out" },
-        0.4
+        dotRef.current,
+        { scale: 0 },
+        { scale: 1, duration: 0.6, ease: "back.out(2)" },
+        0.2
       );
 
       tl.fromTo(
-        lineRef.current,
-        { scaleX: 0 },
-        { scaleX: 1, duration: 1, ease: "power2.inOut", transformOrigin: "center" },
-        0.8
+        digitRefs.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power3.out" },
+        0.3
       );
 
       tl.fromTo(
-        taglineRef.current,
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
-        1.2
+        percentRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.4, ease: "power2.out" },
+        0.6
       );
 
-      // Counter 000 → 100
+      // Animate counter 0 → 100 by rolling digit columns
       tl.to(
         { val: 0 },
         {
           val: 100,
-          duration: 2,
+          duration: 2.4,
           ease: "power2.inOut",
           onUpdate: function () {
-            if (counterRef.current) {
-              counterRef.current.textContent = String(
-                Math.floor(this.targets()[0].val)
-              ).padStart(3, "0");
-            }
+            const v = Math.floor(this.targets()[0].val);
+            if (v === currentValue.current) return;
+            currentValue.current = v;
+
+            const str = String(v).padStart(3, "0");
+            digitRefs.current.forEach((col, i) => {
+              if (!col) return;
+              const digit = parseInt(str[i]);
+              const inner = col.querySelector(".digit-inner") as HTMLElement;
+              if (inner) {
+                gsap.to(inner, {
+                  yPercent: -digit * 10,
+                  duration: 0.35,
+                  ease: "power2.out",
+                  overwrite: true,
+                });
+              }
+            });
           },
         },
-        0.5
+        0.8
+      );
+
+      // Progress ring around the dot
+      tl.fromTo(
+        progressRef.current,
+        { strokeDashoffset: 126 },
+        { strokeDashoffset: 0, duration: 2.4, ease: "power2.inOut" },
+        0.8
       );
 
       await preloadPromise;
 
-      // Phase 2: Content fades out
+      // Exit: scale up digits and fade
       tl.to(
-        [nameRef.current, lineRef.current, taglineRef.current, counterRef.current],
+        [dotRef.current, ...digitRefs.current, percentRef.current],
         {
+          scale: 1.5,
           opacity: 0,
-          y: -30,
           duration: 0.5,
-          stagger: 0.05,
+          stagger: 0.03,
           ease: "power3.in",
         },
-        2.7
+        3.4
       );
 
-      // Phase 3: Horizontal strips peel away from center outward
-      const strips = stripsRef.current?.querySelectorAll<HTMLDivElement>(".strip");
-      if (strips && strips.length > 0) {
-        const half = Math.floor(strips.length / 2);
-        strips.forEach((strip, i) => {
-          const distFromCenter = Math.abs(i - half + 0.5);
-          const delay = distFromCenter * 0.08;
-          const direction = i < half ? -1 : 1;
-
-          tl.to(
-            strip,
-            {
-              yPercent: direction * 110,
-              duration: 0.7,
-              ease: "power4.inOut",
-            },
-            3.3 + delay
-          );
-        });
-      }
+      // Split curtain — top half slides up, bottom slides down
+      tl.to(
+        curtainTopRef.current,
+        { yPercent: -100, duration: 0.9, ease: "power4.inOut" },
+        3.7
+      );
+      tl.to(
+        curtainBottomRef.current,
+        { yPercent: 100, duration: 0.9, ease: "power4.inOut" },
+        3.7
+      );
     };
 
     run();
     return () => { if (tl) tl.kill(); };
   }, []);
 
-  // Generate horizontal strips
-  const strips = [];
-  for (let i = 0; i < STRIP_COUNT; i++) {
-    strips.push(
-      <div
-        key={i}
-        className="strip absolute left-0 w-full"
-        style={{
-          top: `${(i / STRIP_COUNT) * 100}%`,
-          height: `${100 / STRIP_COUNT + 1}%`,
-          background: "hsl(0 0% 96%)",
-        }}
-      />
-    );
-  }
+  const digits = Array.from({ length: 10 }, (_, i) => i);
 
   return (
     <div
@@ -152,56 +153,98 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
       className="fixed inset-0 z-[100]"
       style={{ pointerEvents: "none" }}
     >
-      {/* Strips layer — behind content, peels away last */}
-      <div ref={stripsRef} className="absolute inset-0 z-[1]">
-        {strips}
-      </div>
-
-      {/* Content layer — on top */}
+      {/* Split curtains */}
       <div
-        ref={contentRef}
-        className="absolute inset-0 z-[2] flex flex-col items-center justify-center"
-      >
-        <span
-          ref={nameRef}
-          className="text-5xl md:text-8xl font-bold tracking-tight"
-          style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            color: "hsl(0 0% 8%)",
-            opacity: 0,
-          }}
-        >
-          LUQMAN
-        </span>
+        ref={curtainTopRef}
+        className="absolute top-0 left-0 w-full h-1/2 z-[1]"
+        style={{ background: "hsl(0 0% 96%)" }}
+      />
+      <div
+        ref={curtainBottomRef}
+        className="absolute bottom-0 left-0 w-full h-1/2 z-[1]"
+        style={{ background: "hsl(0 0% 96%)" }}
+      />
 
+      {/* Center content */}
+      <div className="absolute inset-0 z-[2] flex items-center justify-center">
+        {/* Pulsing dot with progress ring */}
         <div
-          ref={lineRef}
-          className="my-6 h-[2px] w-32 md:w-56"
-          style={{
-            background: "hsl(0 0% 8%)",
-            transform: "scaleX(0)",
-          }}
-        />
-
-        <div ref={taglineRef} style={{ opacity: 0 }}>
-          <span
-            className="text-[10px] md:text-xs tracking-[0.5em] uppercase"
-            style={{
-              color: "hsl(0 0% 40%)",
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            Systems · Design · Engineering
-          </span>
+          ref={dotRef}
+          className="absolute"
+          style={{ transform: "scale(0)" }}
+        >
+          <svg width="48" height="48" viewBox="0 0 48 48" className="absolute -top-24 left-1/2 -translate-x-1/2">
+            <circle
+              cx="24" cy="24" r="20"
+              fill="none"
+              stroke="hsl(0 0% 80%)"
+              strokeWidth="1"
+            />
+            <circle
+              ref={progressRef as any}
+              cx="24" cy="24" r="20"
+              fill="none"
+              stroke="hsl(0 0% 15%)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeDasharray="126"
+              strokeDashoffset="126"
+              style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
+            />
+            <circle cx="24" cy="24" r="3" fill="hsl(0 0% 15%)" />
+          </svg>
         </div>
 
-        <span
-          ref={counterRef}
-          className="absolute bottom-8 right-8 text-sm md:text-base tabular-nums font-mono"
-          style={{ color: "hsl(0 0% 55%)", opacity: 1 }}
-        >
-          000
-        </span>
+        {/* Rolling digit counter */}
+        <div className="flex items-center gap-[2px]">
+          {[0, 1, 2].map((colIdx) => (
+            <div
+              key={colIdx}
+              ref={(el) => { if (el) digitRefs.current[colIdx] = el; }}
+              className="overflow-hidden"
+              style={{
+                height: "clamp(60px, 12vw, 120px)",
+                width: "clamp(36px, 7vw, 72px)",
+                opacity: 0,
+              }}
+            >
+              <div
+                className="digit-inner"
+                style={{ willChange: "transform" }}
+              >
+                {digits.map((d) => (
+                  <div
+                    key={d}
+                    className="flex items-center justify-center font-bold"
+                    style={{
+                      height: "clamp(60px, 12vw, 120px)",
+                      fontSize: "clamp(48px, 10vw, 100px)",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      color: "hsl(0 0% 8%)",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {d}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Percent sign */}
+          <span
+            ref={percentRef}
+            className="self-start mt-2 md:mt-3"
+            style={{
+              fontSize: "clamp(14px, 3vw, 24px)",
+              fontFamily: "'Space Grotesk', sans-serif",
+              color: "hsl(0 0% 40%)",
+              opacity: 0,
+            }}
+          >
+            %
+          </span>
+        </div>
       </div>
     </div>
   );
