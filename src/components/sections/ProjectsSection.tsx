@@ -145,8 +145,14 @@ const ProjectsSection = () => {
   return (
     <>
       <div
-        className={`view-cursor ${cursorVisible ? "active" : ""}`}
-        style={{ transform: `translate(${cursorPos.x - 50}px, ${cursorPos.y - 50}px) scale(${cursorVisible ? 1 : 0})` }}
+        className="view-cursor"
+        style={{
+          left: cursorPos.x - 50,
+          top: cursorPos.y - 50,
+          opacity: cursorVisible ? 1 : 0,
+          transform: `scale(${cursorVisible ? 1 : 0})`,
+          transition: "opacity 0.25s ease, transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)",
+        }}
       >
         VIEW
       </div>
