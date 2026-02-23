@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Matter from "matter-js";
+import FallingText from "../FallingText";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -223,6 +224,21 @@ const SkillsSection = () => {
               {skill.label}
             </div>
           ))}
+        </div>
+
+        {/* Falling Text */}
+        <div className="mx-8 md:mx-16 mb-16" style={{ height: "400px" }}>
+          <FallingText
+            text="I don't just write code I craft experiences that blur the line between design and engineering building systems that feel alive and purposeful"
+            highlightWords={["craft", "experiences", "design", "engineering", "alive", "purposeful"]}
+            highlightClass="font-bold"
+            trigger="scroll"
+            backgroundColor="transparent"
+            wireframes={false}
+            gravity={0.56}
+            fontSize="2rem"
+            mouseConstraintStiffness={0.9}
+          />
         </div>
       </div>
     </section>
