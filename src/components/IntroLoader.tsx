@@ -15,7 +15,7 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
       const tl = gsap.timeline({
         onComplete: () => {
           if (containerRef.current) {
-            containerRef.current.style.pointerEvents = "none";
+            containerRef.current.style.display = "none";
           }
           onComplete();
         },
