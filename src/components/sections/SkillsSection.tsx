@@ -49,7 +49,7 @@ const SkillsSection = () => {
     if (!container) return;
 
     const { Engine, World, Bodies, Mouse, MouseConstraint, Runner } = Matter;
-    const engine = Engine.create({ gravity: { x: 0, y: 0 } });
+    const engine = Engine.create({ gravity: { x: 0, y: 0, scale: 0.001 } });
     engineRef.current = engine;
 
     const width = container.offsetWidth;
@@ -129,24 +129,22 @@ const SkillsSection = () => {
 
   // Drop pills on hover
   const handleDrop = () => {
-    if (hasDropped) return;
-    if (!engineRef.current) return;
+    if (hasDropped || !engineRef.current) return;
     setHasDropped(true);
 
     // Enable gravity
-    engineRef.current.gravity.y = 1.5;
-    engineRef.current.gravity.scale = 0.001;
+    engineRef.current.gravity.y = 1;
 
     // Make all bodies dynamic with staggered timing
     bodiesRef.current.forEach((body, i) => {
       setTimeout(() => {
         Matter.Body.setStatic(body, false);
-        Matter.Body.setVelocity(body, { x: (Math.random() - 0.5) * 2, y: 0 });
+        // Give a small random impulse for variety
         Matter.Body.applyForce(body, body.position, {
-          x: (Math.random() - 0.5) * 0.015,
-          y: 0.005,
+          x: (Math.random() - 0.5) * 0.01,
+          y: 0,
         });
-      }, i * 60);
+      }, i * 40);
     });
   };
 

@@ -5,8 +5,9 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const columnsRef = useRef<HTMLDivElement[]>([]);
   const wordRef = useRef<HTMLDivElement>(null);
-  const revealRef = useRef<HTMLDivElement>(null);
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -20,21 +21,21 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         },
       });
 
-      // Phase 1: Word reveal with clip-path
+      // Word reveal
       tl.fromTo(
         wordRef.current,
         { clipPath: "inset(0 100% 0 0)", opacity: 1 },
-        { clipPath: "inset(0 0% 0 0)", duration: 1, ease: "power4.inOut" },
+        { clipPath: "inset(0 0% 0 0)", duration: 1.2, ease: "power4.inOut" },
         0
       );
 
-      // Phase 1: Counter 0 → 100
+      // Counter animation 0 → 100
       tl.to(
         { val: 0 },
         {
           val: 100,
           duration: 2,
-          ease: "power2.inOut",
+          ease: "power3.inOut",
           onUpdate: function () {
             setCount(Math.floor(this.targets()[0].val));
           },
@@ -42,48 +43,52 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         0
       );
 
-      // Phase 1: Progress bar
+      // Progress bar
       tl.fromTo(
         progressRef.current,
         { scaleX: 0 },
-        { scaleX: 1, duration: 2, ease: "power2.inOut", transformOrigin: "left" },
+        { scaleX: 1, duration: 2, ease: "power3.inOut", transformOrigin: "left" },
         0
       );
 
-      // Phase 2: Scale down entire content block and fade
+      // Fade out counter + word
       tl.to(
-        revealRef.current,
+        [wordRef.current, counterRef.current?.parentElement, progressRef.current?.parentElement],
         {
-          scale: 0.85,
           opacity: 0,
-          duration: 0.7,
-          ease: "power3.inOut",
+          scale: 0.9,
+          duration: 0.6,
+          stagger: 0.05,
+          ease: "power3.in",
         },
-        2.1
+        2.2
       );
 
-      // Phase 3: Circular reveal wipe — expand a clip-path circle from center
-      tl.fromTo(
-        containerRef.current,
-        { clipPath: "circle(100% at 50% 50%)" },
-        {
-          clipPath: "circle(0% at 50% 50%)",
-          duration: 1.2,
-          ease: "power4.inOut",
-        },
-        2.6
-      );
+      // Column wipe reveal — 5 columns slide up staggered
+      const numCols = 5;
+      for (let i = 0; i < numCols; i++) {
+        tl.to(
+          columnsRef.current[i],
+          {
+            yPercent: -100,
+            duration: 0.9,
+            ease: "power4.inOut",
+          },
+          2.7 + i * 0.08
+        );
+      }
     }, containerRef);
 
     return () => ctx.revert();
   }, [onComplete]);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-[100]" style={{ background: "hsl(0 0% 2%)" }}>
-      {/* Content block */}
+    <div ref={containerRef} className="fixed inset-0 z-[100]">
+      {/* Full overlay with content */}
       <div
-        ref={revealRef}
+        ref={overlayRef}
         className="absolute inset-0 flex flex-col items-center justify-center"
+        style={{ background: "hsl(0 0% 2%)" }}
       >
         {/* Word */}
         <div ref={wordRef} className="mb-8" style={{ opacity: 0 }}>
@@ -125,6 +130,21 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
           />
         </div>
       </div>
+
+      {/* Column wipe overlays */}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          ref={(el) => { if (el) columnsRef.current[i] = el; }}
+          className="absolute top-0 bottom-0"
+          style={{
+            left: `${i * 20}%`,
+            width: "20%",
+            background: "hsl(0 0% 2%)",
+            zIndex: 2,
+          }}
+        />
+      ))}
     </div>
   );
 };
