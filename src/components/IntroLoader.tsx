@@ -99,8 +99,9 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         const inner = reel.querySelector(".reel-inner") as HTMLElement;
         if (!inner) return;
 
-        const targetY = -(targets[i] * digitH);
-        const fullCycleY = 10 * digitH;
+        const cellH = digitH * 1.15;
+        const targetY = -(targets[i] * cellH);
+        const fullCycleY = 10 * cellH;
         const spinDelay = i * 0.35;
 
         tl.to(inner, {
@@ -166,18 +167,18 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         lastReelStop + 1.5
       );
 
-      // Background behind morph fades to black to match site
+      // Background transitions to black smoothly
       tl.to(
         bgRef.current,
-        { background: "hsl(0 0% 0%)", duration: 0.01 },
-        lastReelStop + 1.8
+        { background: "hsl(0 0% 0%)", duration: 0.5, ease: "power2.inOut" },
+        lastReelStop + 1.5
       );
 
-      // Final: morph SVG fades out to reveal site
+      // Morph SVG fades out smoothly to reveal site
       tl.to(
         morphSvgRef.current,
-        { opacity: 0, duration: 0.6, ease: "power2.out" },
-        lastReelStop + 1.85
+        { opacity: 0, duration: 0.8, ease: "power2.inOut" },
+        lastReelStop + 1.9
       );
     };
 
@@ -221,9 +222,10 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
           {/* Slot frame */}
           <div ref={frameRef} style={{ opacity: 0 }}>
             <div
-              className="flex items-center gap-2 md:gap-3 px-6 md:px-10 py-4 md:py-6"
+              className="flex items-center gap-3 md:gap-4 px-8 md:px-14 py-6 md:py-8 rounded-2xl"
               style={{
                 border: "2px solid hsl(0 0% 0%)",
+                borderRadius: "20px",
               }}
             >
               {[0, 1, 2].map((reelIdx) => (
@@ -232,8 +234,8 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
                   ref={(el) => { if (el) reelRefs.current[reelIdx] = el; }}
                   className="overflow-hidden"
                   style={{
-                    height: digitH,
-                    width: digitH * 0.65,
+                    height: digitH * 1.15,
+                    width: digitH * 0.75,
                     borderRight: reelIdx < 2 ? "1px solid hsl(0 0% 85%)" : "none",
                   }}
                 >
@@ -243,8 +245,8 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
                         key={dIdx}
                         className="flex items-center justify-center font-bold select-none"
                         style={{
-                          height: digitH,
-                          fontSize: digitH * 0.65,
+                          height: digitH * 1.15,
+                          fontSize: digitH * 0.75,
                           fontFamily: "'Space Grotesk', sans-serif",
                           color: "hsl(0 0% 0%)",
                           lineHeight: 1,

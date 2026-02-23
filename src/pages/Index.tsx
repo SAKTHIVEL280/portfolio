@@ -37,16 +37,25 @@ const ScrollProgress = () => {
 
 const Index = () => {
   const [introComplete, setIntroComplete] = useState(false);
+  const mainRef = useRef<HTMLDivElement>(null);
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
+    // Animate site content in
+    if (mainRef.current) {
+      gsap.fromTo(
+        mainRef.current,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 1, ease: "power3.out" }
+      );
+    }
   }, []);
 
   return (
     <SmoothScroll>
       <IntroLoader onComplete={handleIntroComplete} />
       <ScrollProgress />
-      <main>
+      <main ref={mainRef} style={{ opacity: 0 }}>
         <HeroSection />
         <ManifestoSection />
         <ProjectsSection />
