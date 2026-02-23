@@ -59,13 +59,13 @@ const FooterSection = () => {
       ref={sectionRef}
       id="footer"
       className="relative"
-      style={{ background: "hsl(0 0% 0%)" }}
+      style={{ background: "hsl(0 0% 100%)" }}
     >
-      {/* Curved white container */}
+      {/* Curved dark container */}
       <div
         ref={contentRef}
         className="relative rounded-t-[4rem] md:rounded-t-[5rem] min-h-screen flex flex-col justify-end px-8 md:px-16 pb-8 md:pb-16"
-        style={{ background: "hsl(var(--section-light))", color: "hsl(0 0% 4%)" }}
+        style={{ background: "hsl(0 0% 4%)", color: "hsl(0 0% 96%)" }}
       >
         <div className="flex-1 flex items-center">
           <div>
@@ -93,11 +93,11 @@ const FooterSection = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex justify-between items-center pt-8 border-t" style={{ borderColor: "hsl(0 0% 80%)" }}>
-          <span className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: "hsl(0 0% 40%)" }}>
+        <div className="flex justify-between items-center pt-8 border-t" style={{ borderColor: "hsl(0 0% 30%)" }}>
+          <span className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: "hsl(0 0% 60%)" }}>
             Sakthivel © 2026
           </span>
-          <span className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: "hsl(0 0% 40%)" }}>
+          <span className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: "hsl(0 0% 60%)" }}>
             Built with only AI — and intention.
           </span>
         </div>
