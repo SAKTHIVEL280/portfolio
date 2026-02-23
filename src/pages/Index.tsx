@@ -18,7 +18,7 @@ const Index = () => {
 
   return (
     <SmoothScroll>
-      {!introComplete && <IntroLoader onComplete={handleIntroComplete} />}
+      <IntroLoader onComplete={handleIntroComplete} />
       <DynamicIsland />
       <main>
         <HeroSection />
