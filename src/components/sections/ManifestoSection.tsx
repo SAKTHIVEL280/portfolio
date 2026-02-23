@@ -79,7 +79,6 @@ const ManifestoSection = () => {
     }
 
     const ctx = gsap.context(() => {
-      // Draw the line on scroll
       const drawTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -94,7 +93,6 @@ const ManifestoSection = () => {
         drawTl.to(glowRef.current, { strokeDashoffset: 0, ease: "none" }, 0);
       }
 
-      // Text reveal per block
       blockRefs.current.forEach((block, blockIdx) => {
         if (!block) return;
         const lines = block.querySelectorAll<HTMLElement>(".manifesto-line");
@@ -135,37 +133,25 @@ const ManifestoSection = () => {
     return () => ctx.revert();
   }, []);
 
-  // Loopy, flowing path with actual loops, figure-eights, and smooth curves
+  // Centered loopy path — sweeps left and right equally with smooth curves and loops
   const svgPath = `
-    M -10 40
-    C 60 10, 140 10, 200 60
-    C 260 110, 220 200, 160 220
-    C 100 240, 60 180, 100 140
-    C 140 100, 220 120, 260 180
-    Q 300 240, 340 200
-    C 380 160, 420 100, 400 180
-    C 380 260, 300 300, 260 340
-    C 220 380, 280 440, 340 420
-    C 400 400, 440 340, 460 400
-    Q 480 460, 440 500
-    C 400 540, 320 520, 280 560
-    C 240 600, 300 680, 360 660
-    C 420 640, 460 580, 480 640
-    C 500 700, 440 760, 380 780
-    Q 320 800, 280 840
-    C 240 880, 300 940, 360 920
-    C 420 900, 460 840, 480 900
-    C 500 960, 440 1020, 380 1040
-    C 320 1060, 240 1020, 220 1080
-    C 200 1140, 260 1200, 340 1180
-    Q 420 1160, 460 1220
-    C 500 1280, 440 1340, 380 1360
-    C 320 1380, 240 1340, 200 1400
-    C 160 1460, 220 1540, 300 1540
-    C 380 1540, 440 1480, 480 1540
-    Q 520 1600, 460 1660
-    C 400 1720, 300 1700, 240 1740
-    C 180 1780, 240 1840, 340 1820
+    M 250 0
+    C 80 60, 40 140, 120 200
+    C 200 260, 380 200, 420 280
+    C 460 360, 340 420, 240 400
+    C 140 380, 60 440, 100 520
+    C 140 600, 300 580, 400 620
+    C 500 660, 460 760, 340 780
+    C 220 800, 80 760, 60 840
+    C 40 920, 180 960, 300 940
+    C 420 920, 480 1000, 400 1060
+    C 320 1120, 120 1080, 80 1160
+    C 40 1240, 200 1300, 340 1280
+    C 480 1260, 500 1360, 400 1420
+    C 300 1480, 100 1440, 80 1520
+    C 60 1600, 220 1660, 360 1640
+    C 500 1620, 480 1720, 360 1760
+    C 240 1800, 140 1860, 250 1900
   `;
 
   return (
@@ -175,17 +161,17 @@ const ManifestoSection = () => {
       className="relative py-40 md:py-56"
       style={{ background: "hsl(var(--section-dark))" }}
     >
-      {/* SVG flowing loopy line */}
+      {/* SVG flowing loopy line — centered */}
       <svg
         ref={svgRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 520 1860"
+        viewBox="0 0 540 1900"
         preserveAspectRatio="none"
         fill="none"
       >
         <defs>
           <filter id="lineGlow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feGaussianBlur stdDeviation="4" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -197,25 +183,25 @@ const ManifestoSection = () => {
         <path
           ref={glowRef}
           d={svgPath}
-          stroke="hsl(0 0% 25%)"
-          strokeWidth="8"
+          stroke="hsl(0 0% 30%)"
+          strokeWidth="10"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          opacity="0.2"
+          opacity="0.25"
           filter="url(#lineGlow)"
         />
 
-        {/* Main line — thicker */}
+        {/* Main line */}
         <path
           ref={pathRef}
           d={svgPath}
-          stroke="hsl(0 0% 22%)"
-          strokeWidth="4"
+          stroke="hsl(0 0% 35%)"
+          strokeWidth="3.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          opacity="0.5"
+          opacity="0.7"
         />
       </svg>
 
@@ -228,7 +214,6 @@ const ManifestoSection = () => {
             }}
             className={i < blocks.length - 1 ? "mb-44 md:mb-64" : ""}
           >
-            {/* Block number */}
             <span
               className="text-[10px] tracking-[0.5em] uppercase mb-6 block"
               style={{

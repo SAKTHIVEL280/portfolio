@@ -49,7 +49,7 @@ const SkillsSection = () => {
     if (!container) return;
 
     const { Engine, World, Bodies, Mouse, MouseConstraint, Runner } = Matter;
-    const engine = Engine.create({ gravity: { x: 0, y: 0, scale: 0.001 } });
+    const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     engineRef.current = engine;
 
     const width = container.offsetWidth;

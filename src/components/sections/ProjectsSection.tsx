@@ -42,22 +42,23 @@ const ProjectsSection = () => {
         },
       });
 
-      // Card entrance animations
+      // Card entrance — play once and stay
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
         gsap.fromTo(
           card,
-          { y: 80, opacity: 0, scale: 0.92 },
+          { y: 60, opacity: 0, scale: 0.95 },
           {
             y: 0,
             opacity: 1,
             scale: 1,
-            duration: 1.2,
+            duration: 1,
+            delay: i * 0.15,
             ease: "power3.out",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: `top+=${i * 200} top`,
-              toggleActions: "play none none reverse",
+              start: "top 80%",
+              once: true,
             },
           }
         );
