@@ -65,10 +65,14 @@ const ProjectsSection = () => {
         animation: gsap.to(track, { x: -totalWidth, ease: "none" }),
       });
 
-      // Card reveal — animate each card as it enters viewport during horizontal scroll
+      // Card reveal — first card visible, others animate in on scroll
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
-        gsap.set(card, { opacity: 0, y: 50, scale: 0.95 });
+        if (i === 0) {
+          gsap.set(card, { opacity: 1, y: 0, scale: 1 });
+        } else {
+          gsap.set(card, { opacity: 0, y: 50, scale: 0.95 });
+        }
       });
 
       // Use a single scrub-linked timeline for card reveals based on scroll progress
@@ -82,8 +86,8 @@ const ProjectsSection = () => {
       });
 
       cardRefs.current.forEach((card, i) => {
-        if (!card) return;
-        const progress = i / Math.max(projects.length, 1);
+        if (!card || i === 0) return;
+        const progress = (i - 0.5) / Math.max(projects.length, 1);
         cardTimeline.to(card, {
           opacity: 1, y: 0, scale: 1,
           duration: 0.2, ease: "power2.out",
@@ -105,10 +109,14 @@ const ProjectsSection = () => {
         });
       });
 
-      // Title animations — tied to same scrub timeline
+      // Title animations — first visible, rest scrub in
       titleRefs.current.forEach((titleEl, i) => {
         if (!titleEl) return;
-        gsap.set(titleEl, { y: 30, opacity: 0 });
+        if (i === 0) {
+          gsap.set(titleEl, { y: 0, opacity: 1 });
+        } else {
+          gsap.set(titleEl, { y: 30, opacity: 0 });
+        }
       });
 
       const titleTimeline = gsap.timeline({
@@ -121,8 +129,8 @@ const ProjectsSection = () => {
       });
 
       titleRefs.current.forEach((titleEl, i) => {
-        if (!titleEl) return;
-        const progress = i / Math.max(projects.length, 1);
+        if (!titleEl || i === 0) return;
+        const progress = (i - 0.5) / Math.max(projects.length, 1);
         titleTimeline.to(titleEl, {
           y: 0, opacity: 1,
           duration: 0.2, ease: "power2.out",
