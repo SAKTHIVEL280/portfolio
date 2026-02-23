@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import redactifyImg from "@/assets/redactify.png";
 import voicesopImg from "@/assets/voicesop.png";
@@ -50,6 +51,8 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
         onComplete: () => {
           if (containerRef.current) containerRef.current.style.display = "none";
           onComplete();
+          // Refresh ScrollTrigger so sections recalculate after intro is removed
+          setTimeout(() => ScrollTrigger.refresh(), 100);
         },
       });
 
