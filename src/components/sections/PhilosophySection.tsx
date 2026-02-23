@@ -49,7 +49,7 @@ const PhilosophySection = () => {
             { x: -80, opacity: 0 },
             {
               x: 0, opacity: 1, duration: 1.4, ease: "power4.out",
-              scrollTrigger: { trigger: headingRef.current, start: "top 80%", once: true },
+              scrollTrigger: { trigger: headingRef.current, start: "top 80%", end: "top 20%", toggleActions: "play reverse play reverse" },
             }
           );
         }
@@ -58,7 +58,7 @@ const PhilosophySection = () => {
             { x: 80, opacity: 0 },
             {
               x: 0, opacity: 1, duration: 1.4, delay: 0.15, ease: "power4.out",
-              scrollTrigger: { trigger: headingRef.current, start: "top 80%", once: true },
+              scrollTrigger: { trigger: headingRef.current, start: "top 80%", end: "top 20%", toggleActions: "play reverse play reverse" },
             }
           );
         }
@@ -79,7 +79,7 @@ const PhilosophySection = () => {
             { scaleX: 0 },
             {
               scaleX: 1, duration: 1, ease: "power3.inOut",
-              scrollTrigger: { trigger: card, start: "top 82%", once: true },
+              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
             }
           );
         }
@@ -91,7 +91,7 @@ const PhilosophySection = () => {
             {
               y: 0, opacity: 1, rotateX: 0, duration: 0.8, delay: 0.2,
               ease: "power3.out",
-              scrollTrigger: { trigger: card, start: "top 82%", once: true },
+              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
             }
           );
         }
@@ -103,7 +103,7 @@ const PhilosophySection = () => {
             {
               clipPath: "inset(0 0% 0 0)", duration: 1.2, delay: 0.3,
               ease: "power4.out",
-              scrollTrigger: { trigger: card, start: "top 82%", once: true },
+              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
             }
           );
         }
@@ -115,7 +115,7 @@ const PhilosophySection = () => {
             {
               y: 0, opacity: 1, duration: 1, delay: 0.5,
               ease: "power3.out",
-              scrollTrigger: { trigger: card, start: "top 82%", once: true },
+              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
             }
           );
         }
