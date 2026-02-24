@@ -96,7 +96,7 @@ const SkillsSection = () => {
               trigger: cardsRef.current,
               start: "top 80%",
               end: "top 20%",
-              toggleActions: "play reverse play reverse",
+              toggleActions: "play none none none",
             },
           }
         );

@@ -30,7 +30,6 @@ const principles = [
 const PhilosophySection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
-  const headingLineRef = useRef<HTMLSpanElement>(null);
   const cardRefs = useRef<HTMLDivElement[]>([]);
   const numberRefs = useRef<HTMLSpanElement[]>([]);
   const titleRefs = useRef<HTMLHeadingElement[]>([]);
@@ -39,32 +38,42 @@ const PhilosophySection = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Heading entrance — words split and stagger
+      // Heading — smooth fade up with slight Y offset
       if (headingRef.current) {
         const line1 = headingRef.current.querySelector(".phil-line-1");
         const line2 = headingRef.current.querySelector(".phil-line-2");
 
         if (line1) {
           gsap.fromTo(line1,
-            { x: -80, opacity: 0 },
+            { y: 40, opacity: 0 },
             {
-              x: 0, opacity: 1, duration: 1.4, ease: "power4.out",
-              scrollTrigger: { trigger: sectionRef.current, start: "top 80%", end: "bottom top", toggleActions: "play none none reverse" },
+              y: 0, opacity: 1, duration: 1.2, ease: "power3.out",
+              scrollTrigger: {
+                trigger: sectionRef.current,
+                start: "top 75%",
+                end: "bottom top",
+                toggleActions: "play none none reverse",
+              },
             }
           );
         }
         if (line2) {
           gsap.fromTo(line2,
-            { x: 80, opacity: 0 },
+            { y: 40, opacity: 0 },
             {
-              x: 0, opacity: 1, duration: 1.4, delay: 0.15, ease: "power4.out",
-              scrollTrigger: { trigger: sectionRef.current, start: "top 80%", end: "bottom top", toggleActions: "play none none reverse" },
+              y: 0, opacity: 1, duration: 1.2, delay: 0.2, ease: "power3.out",
+              scrollTrigger: {
+                trigger: sectionRef.current,
+                start: "top 75%",
+                end: "bottom top",
+                toggleActions: "play none none reverse",
+              },
             }
           );
         }
       }
 
-      // Cards — horizontal wipe + stagger with counter & title split
+      // Cards — clean, elegant stagger
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
 
@@ -73,50 +82,48 @@ const PhilosophySection = () => {
         const title = titleRefs.current[i];
         const desc = descRefs.current[i];
 
-        // Border line draws in
+        // Timeline for each card — one cohesive sequence
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: card,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        });
+
+        // Border line draws in smoothly
         if (line) {
-          gsap.fromTo(line,
+          tl.fromTo(line,
             { scaleX: 0 },
-            {
-              scaleX: 1, duration: 1, ease: "power3.inOut",
-              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
-            }
+            { scaleX: 1, duration: 0.8, ease: "power2.inOut" },
+            0
           );
         }
 
-        // Number counter rotates in
+        // Number fades in
         if (number) {
-          gsap.fromTo(number,
-            { y: 20, opacity: 0, rotateX: -90 },
-            {
-              y: 0, opacity: 1, rotateX: 0, duration: 0.8, delay: 0.2,
-              ease: "power3.out",
-              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
-            }
+          tl.fromTo(number,
+            { y: 12, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+            0.2
           );
         }
 
-        // Title slides from left
+        // Title fades up
         if (title) {
-          gsap.fromTo(title,
-            { clipPath: "inset(0 100% 0 0)" },
-            {
-              clipPath: "inset(0 0% 0 0)", duration: 1.2, delay: 0.3,
-              ease: "power4.out",
-              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
-            }
+          tl.fromTo(title,
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+            0.3
           );
         }
 
         // Description fades up
         if (desc) {
-          gsap.fromTo(desc,
-            { y: 30, opacity: 0 },
-            {
-              y: 0, opacity: 1, duration: 1, delay: 0.5,
-              ease: "power3.out",
-              scrollTrigger: { trigger: card, start: "top 82%", end: "top 20%", toggleActions: "play reverse play reverse" },
-            }
+          tl.fromTo(desc,
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+            0.45
           );
         }
       });
@@ -135,8 +142,8 @@ const PhilosophySection = () => {
               className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
             >
-              <span className="phil-line-1 block">I don't chase innovation.</span>
-              <span className="phil-line-2 block text-muted-foreground">I eliminate friction.</span>
+              <span className="phil-line-1 block" style={{ opacity: 0 }}>I don't chase innovation.</span>
+              <span className="phil-line-2 block text-muted-foreground" style={{ opacity: 0 }}>I eliminate friction.</span>
             </h2>
           </div>
         </div>
@@ -158,14 +165,14 @@ const PhilosophySection = () => {
               <span
                 ref={(el) => { if (el) numberRefs.current[i] = el; }}
                 className="text-xs tracking-widest uppercase text-muted-foreground mb-4 block"
-                style={{ perspective: "400px", opacity: 0 }}
+                style={{ opacity: 0 }}
               >
                 0{i + 1}
               </span>
               <h3
                 ref={(el) => { if (el) titleRefs.current[i] = el; }}
                 className="text-2xl md:text-4xl font-bold mb-6"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
+                style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", opacity: 0 }}
               >
                 {p.title}
               </h3>
