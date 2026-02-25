@@ -10,7 +10,7 @@ const HeroSection = () => {
   const tagRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
   const subtextRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -43,23 +43,6 @@ const HeroSection = () => {
         0.8
       );
 
-      // Scroll indicator
-      tl.fromTo(
-        scrollRef.current,
-        { opacity: 0 },
-        { opacity: 0.4, duration: 1 },
-        1.4
-      );
-
-      // Scroll indicator pulse
-      gsap.to(scrollRef.current, {
-        y: 8,
-        yoyo: true,
-        repeat: -1,
-        duration: 1.5,
-        ease: "sine.inOut",
-        delay: 5,
-      });
 
       // Parallax on scroll
       ScrollTrigger.create({
@@ -145,24 +128,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div
-        ref={scrollRef}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
-      >
-        <span
-          className="text-[9px] tracking-[0.4em] uppercase"
-          style={{ color: "hsl(var(--muted-foreground))", fontFamily: "'Inter', sans-serif" }}
-        >
-          Scroll
-        </span>
-        <div
-          className="w-px h-8"
-          style={{
-            background: "linear-gradient(to bottom, hsl(0 0% 40%), transparent)",
-          }}
-        />
-      </div>
     </section>
   );
 };
