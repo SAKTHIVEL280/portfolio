@@ -42,7 +42,9 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
     let tl: gsap.core.Timeline;
 
     const run = async () => {
-      const preloadPromise = preloadImages();
+      // Await images BEFORE building the timeline so it never splits
+      await preloadImages();
+
       const digitH = window.innerWidth < 768 ? 80 : 130;
       const cellH = digitH * 1.15;
       const targets = [21, 20, 20];
@@ -50,7 +52,6 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
       tl = gsap.timeline({
         onComplete: () => {
           onComplete();
-          // Refresh ScrollTrigger so sections recalculate after intro is removed
           setTimeout(() => ScrollTrigger.refresh(), 100);
         },
       });
@@ -79,7 +80,6 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
       }, 1.55);
 
       // Phase 2: Reels spin
-      await preloadPromise;
 
       reelRefs.current.forEach((reel, i) => {
         if (!reel) return;
