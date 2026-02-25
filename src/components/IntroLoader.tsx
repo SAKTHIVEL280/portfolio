@@ -176,7 +176,7 @@ const IntroLoader = ({ onComplete }: { onComplete: () => void }) => {
 
     run();
     return () => { if (tl) tl.kill(); };
-  }, []);
+  }, [onComplete]);
 
   const digitH = typeof window !== "undefined" && window.innerWidth < 768 ? 80 : 130;
 

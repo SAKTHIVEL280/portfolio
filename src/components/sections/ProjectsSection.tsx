@@ -173,7 +173,7 @@ const ProjectsSection = () => {
         document.body
       )}
 
-      <div ref={wrapperRef} className="relative" style={{ background: "hsl(var(--section-dark))" }}>
+      <div ref={wrapperRef} id="projects" className="relative" style={{ background: "hsl(var(--section-dark))" }}>
         <div className="sticky top-0 h-screen overflow-hidden">
           <div ref={trackRef} className="flex h-full items-center gap-8 px-16 will-change-transform" style={{ width: "fit-content" }}>
             <div ref={headingRef} className="flex-shrink-0 w-[30vw] flex flex-col justify-center pr-8" style={{ perspective: "600px" }}>
