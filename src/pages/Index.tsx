@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import SmoothScroll from "@/components/SmoothScroll";
 import IntroLoader from "@/components/IntroLoader";
-import Navigation from "@/components/Navigation";
 import HeroSection from "@/components/sections/HeroSection";
 import ManifestoSection from "@/components/sections/ManifestoSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
@@ -29,7 +28,6 @@ const Index = () => {
   return (
     <SmoothScroll>
       {!introComplete && <IntroLoader onComplete={handleIntroComplete} />}
-      {introComplete && <Navigation />}
       <main ref={mainRef} style={{ opacity: introComplete ? undefined : 0 }}>
         <HeroSection />
         <ManifestoSection />
