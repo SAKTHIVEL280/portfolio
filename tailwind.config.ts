@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        heading: ["'Space Grotesk'", "sans-serif"],
+        body: ["'Inter'", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +61,39 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        /* ── Design system surfaces ── */
+        surface: {
+          pure: "hsl(var(--surface-pure))",
+          soft: "hsl(var(--surface-soft))",
+          muted: "hsl(var(--surface-muted))",
+          dark: "hsl(var(--surface-dark))",
+          "dark-alt": "hsl(var(--surface-dark-alt))",
+          black: "hsl(var(--surface-black))",
+        },
+        /* ── Design system text ── */
+        "text-dark": "hsl(var(--text-dark))",
+        "text-body": "hsl(var(--text-body))",
+        "text-subtle": "hsl(var(--text-subtle))",
+        "text-label": "hsl(var(--text-label))",
+        "text-caption": "hsl(var(--text-caption))",
+        "text-light": "hsl(var(--text-light))",
+        "text-hero": "hsl(var(--text-hero))",
+        /* ── Design system borders ── */
+        "border-light": "hsl(var(--border-light))",
+        "border-lighter": "hsl(var(--border-lighter))",
+        "border-subtle": "hsl(var(--border-subtle))",
+        "border-divider": "hsl(var(--border-divider))",
+        /* ── Pills / Interactive ── */
+        pill: {
+          border: "hsl(var(--pill-border))",
+          "hover-bg": "hsl(var(--pill-hover-bg))",
+          "hover-border": "hsl(var(--pill-hover-border))",
+        },
+        /* ── Manifesto ── */
+        manifesto: {
+          muted: "hsl(var(--manifesto-muted))",
+          active: "hsl(var(--manifesto-active))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,20 +102,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
