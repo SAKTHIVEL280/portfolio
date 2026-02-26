@@ -284,7 +284,7 @@ const ManifestoSection = () => {
         />
       </svg>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-8 md:px-16">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 md:px-16">
         {blocks.map((block, i) => (
           <div
             key={i}
@@ -304,7 +304,7 @@ const ManifestoSection = () => {
             {block.lines.map((line, j) => (
               <p
                 key={j}
-                className="manifesto-line text-2xl md:text-4xl lg:text-5xl leading-snug md:leading-snug font-bold"
+                className="manifesto-line text-xl sm:text-2xl md:text-4xl lg:text-5xl leading-snug md:leading-snug font-bold"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
                   color: line === "" ? "transparent" : "hsl(var(--foreground))",
