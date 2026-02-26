@@ -127,9 +127,9 @@ const FooterSection = () => {
       >
         <div className="flex-1 flex items-center pt-16">
           <div>
-            <h2
+      <h2
               ref={headingRef}
-              className="text-4xl md:text-6xl lg:text-8xl font-bold leading-tight mb-12"
+              className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-bold leading-tight mb-8 sm:mb-12"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Ready to build
@@ -140,11 +140,11 @@ const FooterSection = () => {
               <Magnetic strength={30} className="inline-block">
                 <a
                   href="mailto:sakthivel.hsr06@gmail.com"
-                  className="group text-xl md:text-3xl lg:text-4xl font-medium border-b-2 border-current pb-2 hover:opacity-60 transition-opacity duration-300 inline-flex items-center gap-3"
+                  className="group text-base sm:text-xl md:text-3xl lg:text-4xl font-medium border-b-2 border-current pb-2 hover:opacity-60 transition-opacity duration-300 inline-flex items-center gap-2 sm:gap-3 break-all sm:break-normal"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   sakthivel.hsr06@gmail.com
-                  <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 transition-transform duration-300 group-hover:rotate-45" />
+                  <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 flex-shrink-0 transition-transform duration-300 group-hover:rotate-45" />
                 </a>
               </Magnetic>
             </div>
