@@ -7,6 +7,7 @@ import ProjectsSection from "@/components/sections/ProjectsSection";
 import PhilosophySection from "@/components/sections/PhilosophySection";
 import SkillsSection from "@/components/sections/SkillsSection";
 import FooterSection from "@/components/sections/FooterSection";
+import ThemeToggle from "@/components/ThemeToggle";
 import gsap from "gsap";
 
 const Index = () => {
@@ -28,6 +29,7 @@ const Index = () => {
   return (
     <SmoothScroll>
       {!introComplete && <IntroLoader onComplete={handleIntroComplete} />}
+      <ThemeToggle />
       <main ref={mainRef} style={{ opacity: introComplete ? undefined : 0 }}>
         <HeroSection />
         <ManifestoSection />

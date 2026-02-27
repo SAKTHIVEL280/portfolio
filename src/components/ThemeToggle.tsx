@@ -22,15 +22,15 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={() => setIsLight((v) => !v)}
-      className="flex items-center justify-center rounded-full transition-all duration-300 cursor-pointer"
+      className="fixed top-6 right-6 z-[60] flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 cursor-pointer backdrop-blur-xl"
       style={{
-        width: "36px",
-        height: "36px",
-        color: "hsl(var(--nav-muted))",
+        background: "hsl(var(--foreground) / 0.08)",
+        border: "1px solid hsl(var(--foreground) / 0.12)",
+        color: "hsl(var(--foreground))",
       }}
       aria-label="Toggle theme"
     >
-      {isLight ? <Moon size={14} /> : <Sun size={14} />}
+      {isLight ? <Moon size={16} /> : <Sun size={16} />}
     </button>
   );
 };
