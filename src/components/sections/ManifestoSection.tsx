@@ -138,7 +138,7 @@ const renderLineWithHighlights = (line: string) => {
             position: "absolute",
             inset: "-4px -12px",
             borderRadius: "6px",
-            background: "hsl(0 0% 95%)",
+            background: "hsl(var(--manifesto-active))",
             transform: "scaleX(0)",
             transformOrigin: "left",
             zIndex: 0,
@@ -150,7 +150,7 @@ const renderLineWithHighlights = (line: string) => {
           style={{
             position: "relative",
             zIndex: 1,
-            color: "hsl(0 0% 8%)",
+            color: "hsl(var(--section-dark))",
             transition: "color 0.3s ease",
           }}
         >
