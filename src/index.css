@@ -137,6 +137,14 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
+/* Skill card hover text color */
+.skill-card-outline:hover .skill-label {
+  color: hsl(var(--inv-card-fg));
+}
+.skill-card-filled:hover .skill-label {
+  color: hsl(var(--inv-fg));
+}
+
 /* Custom cursor for project cards */
 .view-cursor {
   width: 100px;

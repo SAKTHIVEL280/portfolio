@@ -99,8 +99,8 @@ const SkillsSection = () => {
               </h3>
               <div className="flex flex-wrap gap-3">
                 {coreSkills.map((skill) => (
-                  <div key={skill} className="skill-card group relative px-6 py-3 rounded-full cursor-default transition-all duration-300" style={{ border: "1px solid hsl(var(--inv-border))", color: "hsl(var(--inv-fg))" }}>
-                    <span className="relative z-10 text-sm md:text-base font-medium transition-colors duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <div key={skill} className="skill-card skill-card-outline group relative px-6 py-3 rounded-full cursor-default transition-all duration-300" style={{ border: "1px solid hsl(var(--inv-border))", color: "hsl(var(--inv-fg))" }}>
+                    <span className="skill-label relative z-10 text-sm md:text-base font-medium transition-colors duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {skill}
                     </span>
                     <div className="absolute inset-0 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 ease-out" style={{ background: "hsl(var(--inv-card-bg))" }} />
@@ -116,8 +116,8 @@ const SkillsSection = () => {
               </h3>
               <div className="flex flex-wrap gap-3">
                 {aiSkills.map((skill) => (
-                  <div key={skill} className="skill-card group relative px-6 py-3 rounded-full cursor-default transition-all duration-300" style={{ background: "hsl(var(--inv-card-bg))", color: "hsl(var(--inv-card-fg))" }}>
-                    <span className="relative z-10 text-sm md:text-base font-medium transition-colors duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <div key={skill} className="skill-card skill-card-filled group relative px-6 py-3 rounded-full cursor-default transition-all duration-300" style={{ background: "hsl(var(--inv-card-bg))", color: "hsl(var(--inv-card-fg))" }}>
+                    <span className="skill-label relative z-10 text-sm md:text-base font-medium transition-colors duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {skill}
                     </span>
                     <div className="absolute inset-0 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 ease-out" style={{ background: "hsl(var(--inv-border))" }} />
@@ -133,8 +133,8 @@ const SkillsSection = () => {
               </h3>
               <div className="flex flex-wrap gap-3">
                 {augmentedSkills.map((skill) => (
-                  <div key={skill} className="skill-card group relative px-6 py-3 rounded-full cursor-default transition-all duration-300" style={{ border: "1px solid hsl(var(--inv-border))", color: "hsl(var(--inv-fg))" }}>
-                    <span className="relative z-10 text-sm md:text-base font-medium transition-colors duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <div key={skill} className="skill-card skill-card-outline group relative px-6 py-3 rounded-full cursor-default transition-all duration-300" style={{ border: "1px solid hsl(var(--inv-border))", color: "hsl(var(--inv-fg))" }}>
+                    <span className="skill-label relative z-10 text-sm md:text-base font-medium transition-colors duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {skill}
                     </span>
                     <div className="absolute inset-0 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 ease-out" style={{ background: "hsl(var(--inv-card-bg))" }} />
