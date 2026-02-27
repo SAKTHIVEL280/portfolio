@@ -48,30 +48,12 @@ const ThemeToggle = () => {
     <button
       ref={btnRef}
       onClick={() => setIsLight((v) => !v)}
-      className="fixed top-6 right-6 z-[60] group cursor-pointer"
-      style={{ opacity: 0 }}
+      className="fixed top-6 right-6 z-[60] cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-300"
+      style={{ opacity: 0, color: isLight ? "hsl(var(--foreground))" : "hsl(var(--background))" }}
       aria-label="Toggle theme"
     >
-      {/* Outer ring */}
-      <div
-        className="relative w-11 h-11 rounded-full flex items-center justify-center transition-all duration-500"
-        style={{
-          background: "hsl(var(--foreground) / 0.06)",
-          border: "1px solid hsl(var(--foreground) / 0.1)",
-        }}
-      >
-        {/* Hover ring expand */}
-        <div
-          className="absolute inset-0 rounded-full scale-100 group-hover:scale-[1.15] transition-transform duration-500 ease-out"
-          style={{
-            border: "1px solid hsl(var(--foreground) / 0.08)",
-          }}
-        />
-
-        {/* Icon container */}
-        <div ref={iconRef} className="relative z-10" style={{ color: "hsl(var(--foreground))" }}>
-          {isLight ? <Moon size={16} strokeWidth={1.5} /> : <Sun size={16} strokeWidth={1.5} />}
-        </div>
+      <div ref={iconRef}>
+        {isLight ? <Moon size={20} strokeWidth={1.5} /> : <Sun size={20} strokeWidth={1.5} />}
       </div>
     </button>
   );
