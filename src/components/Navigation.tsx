@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import ThemeToggle from "./ThemeToggle";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -88,10 +89,10 @@ const Navigation = () => {
       ref={pillRef}
       className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 px-2 py-2 rounded-full"
       style={{
-        background: "hsla(0, 0%, 8%, 0.9)",
+        background: "hsl(var(--nav-bg) / 0.9)",
         backdropFilter: "blur(24px)",
-        border: "1px solid hsl(0 0% 18%)",
-        boxShadow: "0 8px 32px hsla(0, 0%, 0%, 0.5)",
+        border: "1px solid hsl(var(--nav-border))",
+        boxShadow: "0 8px 32px hsla(0, 0%, 0%, 0.3)",
         opacity: 0,
         transform: "translateY(30px)",
       }}
@@ -99,18 +100,22 @@ const Navigation = () => {
       {/* Progress bar */}
       <div
         className="absolute top-0 left-3 right-3 h-px overflow-hidden rounded-full"
-        style={{ background: "hsl(0 0% 15%)" }}
+        style={{ background: "hsl(var(--nav-border))" }}
       >
         <div
           ref={progressRef}
           className="h-full origin-left"
           style={{
-            background: "hsl(0 0% 70%)",
+            background: "hsl(var(--nav-muted))",
             transform: "scaleX(0)",
             transition: "none",
           }}
         />
       </div>
+
+      <ThemeToggle />
+
+      <div className="w-px h-5 mx-1" style={{ background: "hsl(var(--nav-border))" }} />
 
       {navItems.map((item, i) => {
         const isActive = activeIdx === i;
@@ -130,11 +135,11 @@ const Navigation = () => {
               padding: showLabel ? "0 14px" : "0",
               minWidth: "36px",
               background: isActive
-                ? "hsl(0 0% 95%)"
+                ? "hsl(var(--nav-active-bg))"
                 : isHovered
-                ? "hsl(0 0% 16%)"
+                ? "hsl(var(--nav-border))"
                 : "transparent",
-              color: isActive ? "hsl(0 0% 4%)" : "hsl(0 0% 60%)",
+              color: isActive ? "hsl(var(--nav-active-fg))" : "hsl(var(--nav-muted))",
             }}
           >
             <span

@@ -106,7 +106,7 @@ const HeroSection = () => {
             width
             weight
             italic
-            textColor="hsl(0 0% 93%)"
+            textColor="hsl(var(--foreground))"
             strokeColor="#333333"
             minFontSize={40}
           />

@@ -34,6 +34,24 @@
     --section-light: 0 0% 95%;
     --pill-border: 0 0% 20%;
 
+    /* Inverted section (Skills) */
+    --inv-bg: 0 0% 100%;
+    --inv-fg: 0 0% 4%;
+    --inv-muted: 0 0% 50%;
+    --inv-border: 0 0% 85%;
+    --inv-card-bg: 0 0% 8%;
+    --inv-card-fg: 0 0% 95%;
+    --inv-wave-1: 0 0% 94%;
+    --inv-wave-2: 0 0% 97%;
+    --inv-wave-3: 0 0% 100%;
+
+    /* Nav pill */
+    --nav-bg: 0 0% 8%;
+    --nav-border: 0 0% 18%;
+    --nav-active-bg: 0 0% 95%;
+    --nav-active-fg: 0 0% 4%;
+    --nav-muted: 0 0% 60%;
+
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 0 0% 95%;
@@ -59,6 +77,31 @@
     --accent-foreground: 0 0% 8%;
     --border: 0 0% 80%;
     --input: 0 0% 80%;
+
+    --hero-bg: 0 0% 95%;
+    --hero-fg: 0 0% 10%;
+    --section-dark: 0 0% 95%;
+    --section-light: 0 0% 4%;
+    --manifesto-muted: 0 0% 70%;
+    --manifesto-active: 0 0% 8%;
+
+    /* Inverted section flips to dark */
+    --inv-bg: 0 0% 6%;
+    --inv-fg: 0 0% 95%;
+    --inv-muted: 0 0% 55%;
+    --inv-border: 0 0% 25%;
+    --inv-card-bg: 0 0% 92%;
+    --inv-card-fg: 0 0% 8%;
+    --inv-wave-1: 0 0% 12%;
+    --inv-wave-2: 0 0% 8%;
+    --inv-wave-3: 0 0% 6%;
+
+    /* Nav pill in light mode */
+    --nav-bg: 0 0% 96%;
+    --nav-border: 0 0% 82%;
+    --nav-active-bg: 0 0% 8%;
+    --nav-active-fg: 0 0% 95%;
+    --nav-muted: 0 0% 45%;
   }
 }
 
@@ -99,8 +142,8 @@ html.lenis, html.lenis body {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: hsl(0 0% 95%);
-  color: hsl(0 0% 4%);
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
   display: flex;
   align-items: center;
   justify-content: center;
