@@ -49,7 +49,7 @@ const ThemeToggle = () => {
       ref={btnRef}
       onClick={() => setIsLight((v) => !v)}
       className="fixed top-6 right-6 z-[60] cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-300"
-      style={{ opacity: 0, color: isLight ? "hsl(var(--foreground))" : "hsl(var(--background))" }}
+      style={{ opacity: 0, color: "hsl(var(--foreground))" }}
       aria-label="Toggle theme"
     >
       <div ref={iconRef}>
