@@ -91,7 +91,7 @@ const FooterSection = () => {
       ref={sectionRef}
       id="footer"
       className="relative"
-      style={{ background: "hsl(0 0% 100%)" }}
+      style={{ background: "hsl(var(--inv-bg))" }}
     >
       {/* SVG Morph transition */}
       <div className="relative w-full" style={{ marginTop: "-1px" }}>
@@ -104,12 +104,12 @@ const FooterSection = () => {
           <path
             ref={morphPath1}
             d="M0,0 C480,200 960,-100 1440,80 L1440,300 L0,300 Z"
-            fill="hsl(0 0% 4%)"
+            fill="hsl(var(--section-dark))"
           />
           <path
             ref={morphPath2}
             d="M0,60 C360,180 720,-60 1080,120 C1260,200 1380,40 1440,100 L1440,300 L0,300 Z"
-            fill="hsl(0 0% 6%)"
+            fill="hsl(var(--section-dark))"
           />
         </svg>
       </div>
@@ -119,8 +119,8 @@ const FooterSection = () => {
         ref={contentRef}
         className="relative min-h-[80vh] flex flex-col justify-end px-8 md:px-16 pb-8 md:pb-16"
         style={{
-          background: "hsl(0 0% 4%)",
-          color: "hsl(0 0% 96%)",
+          background: "hsl(var(--section-dark))",
+          color: "hsl(var(--foreground))",
           borderRadius: "48px 48px 0 0",
           marginTop: "-48px",
         }}
@@ -152,10 +152,10 @@ const FooterSection = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex justify-center items-center pt-8 border-t" style={{ borderColor: "hsl(0 0% 30%)" }}>
+        <div className="flex justify-center items-center pt-8 border-t border-border">
           <span
-            className="text-lg md:text-xl tracking-wide"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(0 0% 95%)" }}
+            className="text-lg md:text-xl tracking-wide text-foreground"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             Built with only AI — and intention.
           </span>
