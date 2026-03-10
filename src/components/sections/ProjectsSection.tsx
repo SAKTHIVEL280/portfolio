@@ -203,9 +203,14 @@ const DesktopProjects = () => {
               className="text-5xl md:text-7xl font-bold leading-tight overflow-hidden"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
             >
-              {headingText.split("").map((char, i) => (
-                <span key={i} className="heading-char inline-block" style={{ transformOrigin: "bottom center" }}>
-                  {char === " " ? "\u00A0" : char}
+            {headingText.split(" ").map((word, wi) => (
+                <span key={wi} className="inline-block whitespace-nowrap">
+                  {word.split("").map((char, ci) => (
+                    <span key={ci} className="heading-char inline-block" style={{ transformOrigin: "bottom center" }}>
+                      {char}
+                    </span>
+                  ))}
+                  {wi < headingText.split(" ").length - 1 && <span className="inline-block">&nbsp;</span>}
                 </span>
               ))}
             </h2>
