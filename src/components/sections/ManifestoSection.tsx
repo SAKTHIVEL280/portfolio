@@ -150,7 +150,7 @@ const renderLineWithHighlights = (line: string) => {
           style={{
             position: "relative",
             zIndex: 1,
-            color: "hsl(var(--section-dark))",
+            color: "hsl(var(--background))",
             transition: "color 0.3s ease",
           }}
         >

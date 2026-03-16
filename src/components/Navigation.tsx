@@ -81,7 +81,15 @@ const Navigation = () => {
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (el) {
+      // Dispatch custom event so Lenis SmoothScroll wrapper can intercept
+      window.dispatchEvent(new CustomEvent("lenis-scroll-to", { detail: { id } }));
+      // Fallback: native smooth scroll if Lenis not active
+      setTimeout(() => {
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
   };
 
   return (

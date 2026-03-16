@@ -72,7 +72,7 @@ const MobileProjects = () => {
         className="text-4xl font-bold mb-12"
         style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", opacity: 0 }}
       >
-        Selected Works
+        All Works
       </h2>
       <div className="flex flex-col gap-10">
         {projects.map((project, i) => (
@@ -107,6 +107,7 @@ const MobileProjects = () => {
         <Magnetic strength={20} className="inline-block">
           <Link
             to="/projects"
+            state={{ fromHome: true }}
             data-cursor="click"
             className="group inline-flex items-center gap-3 text-lg md:text-xl font-medium transition-opacity duration-300 hover:opacity-70"
             style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", borderBottom: "2px solid hsl(var(--foreground))" }}
@@ -239,7 +240,7 @@ const DesktopProjects = () => {
   }, []);
 
 
-  const headingText = "Selected Works";
+  const headingText = "All Works";
 
   return (
     <div ref={wrapperRef} id="projects" className="relative" style={{ background: "hsl(var(--section-dark))" }}>
@@ -296,6 +297,7 @@ const DesktopProjects = () => {
             <Magnetic strength={20} className="inline-block">
               <Link
                 to="/projects"
+                state={{ fromHome: true }}
                 data-cursor="click"
                 className="group inline-flex items-center gap-3 text-xl md:text-2xl font-medium transition-opacity duration-300 hover:opacity-70"
                 style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", borderBottom: "2px solid hsl(var(--foreground))" }}

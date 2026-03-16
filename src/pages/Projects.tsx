@@ -86,17 +86,23 @@ const projects: Project[] = [
 const Projects = () => {
   const pageRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const upcomingHeadingRef = useRef<HTMLHeadingElement>(null);
   const cardRefs = useRef<HTMLDivElement[]>([]);
   const [activeProject, setActiveProject] = useState<number | null>(null);
 
-  // Professional scroll management
+  // Professional scroll management — force to top on every mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.history.scrollRestoration = "manual";
+      // Fire native scroll reset immediately
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
-      ScrollTrigger.refresh();
+      // Also dispatch Lenis-aware scroll-to-top event
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("lenis-scroll-top"));
+        ScrollTrigger.refresh();
+      });
     }
   }, []);
 
@@ -170,6 +176,24 @@ const Projects = () => {
           );
         }
       });
+      // Animate upcoming section heading
+      if (upcomingHeadingRef.current) {
+        gsap.fromTo(
+          upcomingHeadingRef.current,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: upcomingHeadingRef.current,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      }
     }, pageRef);
     return () => ctx.revert();
   }, []);
@@ -210,7 +234,7 @@ const Projects = () => {
               opacity: 0,
             }}
           >
-            Selected Works
+            All Works
           </h1>
 
           {/* Section 1: Main Projects */}
@@ -363,9 +387,10 @@ const Projects = () => {
 
           {/* Section 2: Upcoming / Ongoing Projects */}
           <div className="mt-40 mb-20">
-            <h2 
-              className="text-4xl md:text-5xl font-bold mb-16 opacity-60"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))" }}
+            <h2
+              ref={upcomingHeadingRef}
+              className="text-4xl md:text-5xl font-bold mb-16"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", opacity: 0 }}
             >
               Upcoming / Ongoing Projects
             </h2>
