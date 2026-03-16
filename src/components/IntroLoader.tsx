@@ -4,10 +4,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import redactifyImg from "@/assets/redactify.png";
 import voicesopImg from "@/assets/voicesop.png";
-import myluqImg from "@/assets/myluq.png";
+import groundworkImg from "@/assets/groundwork.png";
 import daeqImg from "@/assets/daeq.png";
 
-const imageSources = [redactifyImg, voicesopImg, myluqImg, daeqImg];
+const imageSources = [redactifyImg, voicesopImg, groundworkImg, daeqImg];
 
 const preloadImages = (): Promise<void> => {
   return new Promise((resolve) => {

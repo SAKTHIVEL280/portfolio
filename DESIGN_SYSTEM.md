@@ -313,6 +313,21 @@ The page renders sections in this exact order (see `src/pages/Index.tsx`):
 9.   FooterSection     #footer
 ```
 
+### 9.1.1 Secondary Pages
+
+| Route | Page file | Description |
+|---|---|---|
+| `/projects` | `src/pages/Projects.tsx` | Full grid of all projects (real + placeholder). Standalone page with `SmoothScroll`, `ThemeToggle`, back link to `/`, and GSAP scroll-triggered card entrances. |
+
+**Floating Image Portal (`/projects`):**  
+A `position: fixed`, `pointer-events: none` image container (350×260px, `z-50`) that becomes visible when hovering project cards with images. Uses `gsap.quickTo` for `x`/`y` with 0.4s `power3.out` ease for smooth mouse tracking. Image swaps based on hovered card. Placeholder cards (no image) don’t trigger the portal.
+
+**Hover-Driven Image Masking (`/projects`):**  
+CSS micro-interaction (allowed per design system rules) on project card images:  
+- `.project-image-mask`: `clip-path: inset(0%)` → `inset(4% round 6px)` on group hover  
+- `.project-image-inner`: `scale(1)` → `scale(1.05)` on group hover  
+- Easing: `cubic-bezier(0.16, 1, 0.3, 1)` (expo-out feel), 0.5s duration  
+
 ### 9.2 Section IDs
 
 These IDs are critical — they are used by both `Navigation` and `DynamicIsland` to track active section via `ScrollTrigger`.
@@ -538,6 +553,9 @@ Thin wrapper around React Router's `NavLink` that accepts `className`, `activeCl
 
 **Scroll parallax:** On scroll, name moves down at 100× progress, tagline at 50× (and fades), subtext at 30× (and fades).
 
+**Scroll-driven clip-path masking:**  
+A `clipRef` wrapper wraps all hero content. As the user scrolls, the wrapper's `clipPath` animates from `inset(0% round 0px)` to `inset(8% round 48px)`, creating a cinematic "window closing" effect. Driven by the same `ScrollTrigger` that handles parallax.
+
 ---
 
 ### 11.2 ManifestoSection
@@ -585,7 +603,7 @@ Four text blocks with a flowing SVG path behind them. Each block has a block cou
 ```
 Redactify     — AI Security, Privacy      — /src/assets/redactify.png
 VoiceSOP      — Applied AI, Automation    — /src/assets/voicesop.png
-MyLuQ         — Systems Engineering, Rust — /src/assets/myluq.png
+Groundwork    — Developer Tooling, Architecture — /src/assets/groundwork.png
 daeq.in       — Design, User Experience  — /src/assets/daeq.png
 ```
 
@@ -603,10 +621,13 @@ daeq.in       — Design, User Experience  — /src/assets/daeq.png
 - Full-width `aspect-[4/3]` images
 - Cards stagger in with `y: 60 → 0` on scroll
 
+**"View All Projects" link:**  
+Both mobile and desktop layouts include a `Link to="/projects"` at the end, styled as an underlined text link with `ArrowUpRight` icon, wrapped in `Magnetic` for cursor attraction. Navigates to the `/projects` page.
+
 **Adding a new project:**
 1. Add image to `src/assets/`
-2. Import at top of `ProjectsSection.tsx`
-3. Add entry to the `projects` array: `{ title: "...", domains: ["...", "..."], image: importedImg }`
+2. Import at top of `ProjectsSection.tsx` **and** `src/pages/Projects.tsx`
+3. Add entry to the `projects` array in both files: `{ title: "...", domains: ["...", "..."], image: importedImg }`
 
 ---
 
@@ -990,3 +1011,18 @@ Use `lucide-react` exclusively. Currently used icons:
 
 *Last updated: March 2026*  
 *Maintained by: Sakthivel*
+## 13. Global Behaviors
+
+### 13.1 Session-based Intro Loader
+
+The `IntroLoader` is designed to be a one-time experience per browser tab session.
+- **State management:** `Index.tsx` uses `sessionStorage.getItem("intro_seen")` to determine if the loader should be shown.
+- **Scroll locking:** While the intro is active (`introComplete === false`), the `document.body.style.overflow` is set to `hidden` to prevent accidental scrolling through the content before the entrance animation.
+
+### 13.2 Navigation Scroll Reset & Anchors
+
+To ensure a proper transition between pages:
+- **Projects to Top:** The `/projects` page resets the scroll position to `(0, 0)` on mount in `Projects.tsx`. Robust reset ensures it doesn't inherit scroll from the source page.
+- **Back to Section End:** The "Back" link on the projects page targets `/#selected-works-bottom`. `Index.tsx` handles scrolling to this anchor after the intro animation is complete, then uses `window.history.replaceState` to clean the URL back to `/`.
+
+---

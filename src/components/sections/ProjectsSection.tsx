@@ -1,11 +1,13 @@
 import { useRef, useEffect } from "react";
-
+import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Magnetic from "@/components/Magnetic";
 import redactifyImg from "@/assets/redactify.png";
 import voicesopImg from "@/assets/voicesop.png";
-import myluqImg from "@/assets/myluq.png";
+import groundworkImg from "@/assets/groundwork.png";
 import daeqImg from "@/assets/daeq.png";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
 const projects = [
   { title: "Redactify", domains: ["AI Security", "Privacy"], image: redactifyImg },
   { title: "VoiceSOP", domains: ["Applied AI", "Automation"], image: voicesopImg },
-  { title: "MyLuQ", domains: ["Systems Engineering", "Rust"], image: myluqImg },
+  { title: "Groundwork", domains: ["Developer Tooling", "Architecture"], image: groundworkImg },
   { title: "daeq.in", domains: ["Design", "User Experience"], image: daeqImg },
 ];
 
@@ -36,9 +38,11 @@ const MobileProjects = () => {
         );
       }
 
-      // Cards stagger in
+      // Cards stagger in with mask reveal
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
+        const imgWrapper = card.querySelector(".project-img-wrapper");
+        
         gsap.fromTo(card,
           { y: 60, opacity: 0 },
           {
@@ -46,6 +50,16 @@ const MobileProjects = () => {
             scrollTrigger: { trigger: card, start: "top 88%", toggleActions: "play none none reverse" },
           }
         );
+
+        if (imgWrapper) {
+          gsap.fromTo(imgWrapper,
+            { clipPath: "inset(100% 0 0 0)" },
+            {
+              clipPath: "inset(0% 0 0 0)", duration: 1.2, delay: i * 0.1 + 0.2, ease: "power4.out",
+              scrollTrigger: { trigger: card, start: "top 88%", toggleActions: "play none none reverse" },
+            }
+          );
+        }
       });
     }, sectionRef);
     return () => ctx.revert();
@@ -65,10 +79,11 @@ const MobileProjects = () => {
           <div
             key={i}
             ref={(el) => { if (el) cardRefs.current[i] = el; }}
+            data-cursor="view"
             className="flex flex-col gap-4"
             style={{ opacity: 0 }}
           >
-            <div className="w-full aspect-[4/3] overflow-hidden rounded-sm">
+            <div className="w-full aspect-[4/3] overflow-hidden rounded-sm project-img-wrapper" style={{ clipPath: "inset(100% 0 0 0)" }}>
               <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
             </div>
             <div>
@@ -86,6 +101,22 @@ const MobileProjects = () => {
           </div>
         ))}
       </div>
+
+      {/* View All Projects */}
+      <div className="flex justify-center mt-16">
+        <Magnetic strength={20} className="inline-block">
+          <Link
+            to="/projects"
+            data-cursor="click"
+            className="group inline-flex items-center gap-3 text-lg md:text-xl font-medium transition-opacity duration-300 hover:opacity-70"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", borderBottom: "2px solid hsl(var(--foreground))" }}
+          >
+            View All Projects
+            <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" />
+          </Link>
+        </Magnetic>
+      </div>
+      <div id="selected-works-bottom" />
     </div>
   );
 };
@@ -137,9 +168,13 @@ const DesktopProjects = () => {
       });
     }
 
-    cardRefs.current.forEach((card) => {
+    cardRefs.current.forEach((card, i) => {
       if (!card) return;
       gsap.set(card, { opacity: 0, y: 60, scale: 0.92 });
+      const imgWrapper = card.querySelector(".project-img-wrapper");
+      if (imgWrapper) {
+        gsap.set(imgWrapper, { clipPath: "inset(100% 0 0 0)" });
+      }
     });
     titleRefs.current.forEach((el) => {
       if (!el) return;
@@ -171,12 +206,24 @@ const DesktopProjects = () => {
           if (inView && !revealed.has(i)) {
             revealed.add(i);
             gsap.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: "power3.out" });
+            
+            const imgWrapper = card.querySelector(".project-img-wrapper");
+            if (imgWrapper) {
+              gsap.to(imgWrapper, { clipPath: "inset(0% 0 0 0)", duration: 1.2, delay: 0.2, ease: "power4.out" });
+            }
+
             if (titleRefs.current[i]) {
               gsap.to(titleRefs.current[i], { opacity: 1, y: 0, duration: 0.7, delay: 0.15, ease: "power3.out" });
             }
           } else if (!inView && revealed.has(i)) {
             revealed.delete(i);
             gsap.to(card, { opacity: 0, y: 60, scale: 0.92, duration: 0.5, ease: "power2.in" });
+            
+            const imgWrapper = card.querySelector(".project-img-wrapper");
+            if (imgWrapper) {
+              gsap.to(imgWrapper, { clipPath: "inset(100% 0 0 0)", duration: 0.5, ease: "power2.in" });
+            }
+
             if (titleRefs.current[i]) {
               gsap.to(titleRefs.current[i], { opacity: 0, y: 30, duration: 0.4, ease: "power2.in" });
             }
@@ -221,9 +268,10 @@ const DesktopProjects = () => {
             <div
               key={i}
               ref={(el) => { if (el) cardRefs.current[i] = el; }}
+              data-cursor="view"
               className="flex-shrink-0 w-[40vw] flex flex-col gap-4"
             >
-              <div className="w-full aspect-[4/3] relative overflow-hidden rounded-sm">
+              <div className="w-full aspect-[4/3] relative overflow-hidden rounded-sm project-img-wrapper" style={{ clipPath: "inset(100% 0 0 0)" }}>
                 <div ref={(el) => { if (el) imageRefs.current[i] = el; }} className="w-[116%] h-full">
                   <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
                 </div>
@@ -242,8 +290,24 @@ const DesktopProjects = () => {
               </div>
             </div>
           ))}
+
+          {/* View All Projects — last item in track */}
+          <div className="flex-shrink-0 w-[30vw] flex flex-col items-center justify-center">
+            <Magnetic strength={20} className="inline-block">
+              <Link
+                to="/projects"
+                data-cursor="click"
+                className="group inline-flex items-center gap-3 text-xl md:text-2xl font-medium transition-opacity duration-300 hover:opacity-70"
+                style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", borderBottom: "2px solid hsl(var(--foreground))" }}
+              >
+                View All Projects
+                <ArrowUpRight className="w-6 h-6 transition-transform duration-300 group-hover:rotate-45" />
+              </Link>
+            </Magnetic>
+          </div>
         </div>
       </div>
+      <div id="selected-works-bottom" />
     </div>
   );
 };
