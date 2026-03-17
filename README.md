@@ -1,73 +1,101 @@
-# Welcome to your Lovable project
+# Sakthivel Portfolio
 
-## Project info
+A cinematic, AI-native portfolio built with React, TypeScript, GSAP, and Tailwind CSS.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Overview
 
-## How can I edit this code?
+This project is a performance-focused single-page experience with a dedicated projects route.
 
-There are several ways of editing your application.
+- Intro slot-machine loader with image preloading
+- Scroll-driven storytelling and section reveals
+- Smooth scrolling via Lenis + GSAP ticker sync
+- Fully responsive project showcase (horizontal desktop / vertical mobile)
+- Theme toggle (dark/light) with persisted preference
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- React 18 + TypeScript
+- Vite 5
+- Tailwind CSS
+- GSAP + ScrollTrigger
+- Lenis (@studio-freight/lenis)
+- React Router DOM
+- TanStack React Query
+- Radix UI (toast + tooltip primitives)
+- Sonner (notifications)
 
-Changes made via Lovable will be committed automatically to this repo.
+## Visual Effects and Motion
 
-**Use your preferred IDE**
+- Intro sequence: slot reels, lever pull, morph-to-black transition
+- Hero reveal: staged text and media clip-path animations
+- Manifesto section: SVG path drawing, word scrambling, highlight-reveal animation
+- Projects section:
+- Mobile card stagger + mask reveals
+- Desktop horizontal scroll track with parallax image offset
+- Skills and Footer: SVG wave/path morphing tied to scroll progress
+- Micro-interactions: magnetic hover effect, icon transitions, cursor states
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js 20+
+- npm 10+
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Run in development
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open the local URL shown by Vite (default: http://localhost:8080).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start local dev server
+- `npm run build` - Create production build
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint
+- `npm run test` - Run Vitest tests once
+- `npm run test:watch` - Run Vitest in watch mode
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+- `src/pages/Index.tsx` - Main single-page experience
+- `src/pages/Projects.tsx` - Full projects route
+- `src/components/sections/` - Core content sections
+- `src/components/SmoothScroll.tsx` - Lenis + ScrollTrigger integration
+- `src/components/IntroLoader.tsx` - Intro loader animation
+- `src/index.css` - Global tokens and styling system
 
-This project is built with:
+## Production Notes
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Production bundle is generated with Vite tree-shaking and minification.
+- Image assets are served as WebP for efficient payload size.
+- Animation work is scoped and reverted with GSAP context cleanup.
 
-## How can I deploy this project?
+## Deployment
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Deploy the `dist/` output produced by:
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+npm run build
+```
 
-Yes, you can!
+Primary production domain:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- `https://sakthivel.daeq.in`
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is configured for Vercel hosting via `vercel.json`, including:
+
+- SPA rewrites for React Router routes like `/projects`
+- cache headers for versioned asset files
+- basic hardening headers for browser security
+
+It can also be deployed on Netlify, Cloudflare Pages, or any static hosting platform with equivalent SPA rewrite rules.

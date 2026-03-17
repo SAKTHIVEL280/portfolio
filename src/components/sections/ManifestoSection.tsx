@@ -130,13 +130,13 @@ const renderLineWithHighlights = (line: string) => {
         key={i}
         data-word={part.text}
         className="highlight-word"
-        style={{ position: "relative", display: "inline-block" }}
+        style={{ position: "relative", display: "inline-flex", margin: "0 0.08em" }}
       >
         <span
           className="highlight-bg"
           style={{
             position: "absolute",
-            inset: "-4px -12px",
+            inset: "-1px -6px",
             borderRadius: "6px",
             background: "hsl(var(--manifesto-active))",
             transform: "scaleX(0)",
@@ -304,7 +304,7 @@ const ManifestoSection = () => {
             {block.lines.map((line, j) => (
               <p
                 key={j}
-                className="manifesto-line text-xl sm:text-2xl md:text-4xl lg:text-5xl leading-snug md:leading-snug font-bold"
+                className="manifesto-line text-xl sm:text-2xl md:text-4xl lg:text-5xl leading-relaxed md:leading-snug font-bold"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
                   color: line === "" ? "transparent" : "hsl(var(--foreground))",

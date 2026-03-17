@@ -12,3 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Host: https://sakthivel.daeq.in
+Sitemap: https://sakthivel.daeq.in/sitemap.xml

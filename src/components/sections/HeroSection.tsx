@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import heroImg from "@/assets/hero.webp";
@@ -6,13 +6,40 @@ import heroImg from "@/assets/hero.webp";
 gsap.registerPlugin(ScrollTrigger);
 
 const HeroSection = () => {
-  const sectionRef   = useRef<HTMLElement>(null);
-  const wrapperRef   = useRef<HTMLDivElement>(null);
-  const nameRef      = useRef<HTMLHeadingElement>(null);
-  const col1Ref      = useRef<HTMLDivElement>(null);
-  const col2Ref      = useRef<HTMLDivElement>(null);
-  const imgSlotRef   = useRef<HTMLDivElement>(null);
-  const metaRef      = useRef<HTMLDivElement>(null);
+  const sectionRef      = useRef<HTMLElement>(null);
+  const bgRef           = useRef<HTMLDivElement>(null);
+  const contentRef      = useRef<HTMLDivElement>(null);
+  const nameRef         = useRef<HTMLHeadingElement>(null);
+  const taglineRef      = useRef<HTMLDivElement>(null);
+  const descriptionRef  = useRef<HTMLParagraphElement>(null);
+  const [viewportWidth, setViewportWidth] = useState(1440);
+
+  const isMobile = viewportWidth <= 768;
+  const isTablet = viewportWidth > 768 && viewportWidth <= 1200;
+  const isWide = viewportWidth >= 1700;
+
+  const leftTransform = isMobile
+    ? "translate(-18px, -48px)"
+    : isTablet
+      ? "translate(-82px, -96px)"
+      : isWide
+        ? "translate(-165px, -162px)"
+        : "translate(-140px, -140px)";
+
+  const taglineLeftOffset = isMobile
+    ? "0px"
+    : isTablet
+      ? "130px"
+      : isWide
+        ? "300px"
+        : "250px";
+
+  useEffect(() => {
+    const updateViewport = () => setViewportWidth(window.innerWidth);
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
 
   useEffect(() => {
     const alreadySeen = sessionStorage.getItem("intro_seen") === "true";
@@ -21,57 +48,52 @@ const HeroSection = () => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay, defaults: { ease: "power4.out" } });
 
-      // 1 — Name clips up from below (the classic editorial reveal)
+      // 1 — Background fade in
       tl.fromTo(
-        nameRef.current,
-        { y: 90, opacity: 0, clipPath: "inset(100% 0 0 0)" },
-        { y: 0, opacity: 1, clipPath: "inset(0% 0 0 0)", duration: 1.0 },
+        bgRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 1.2 },
         0
       );
 
-      // 2 — Left column wipes in
+      // 2 — Name slides up with clip
       tl.fromTo(
-        col1Ref.current,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8 },
-        0.55
+        nameRef.current,
+        { y: 80, opacity: 0, clipPath: "inset(100% 0 0 0)" },
+        { y: 0, opacity: 1, clipPath: "inset(0% 0 0 0)", duration: 1.2 },
+        0.2
       );
 
-      // 3 — Right column fades in with delay
+      // 3 — Tagline fades in
       tl.fromTo(
-        col2Ref.current,
+        taglineRef.current,
         { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7 },
-        0.70
+        { y: 0, opacity: 1, duration: 0.8 },
+        0.6
       );
 
-      // 4 — Image slot rises up
+      // 4 — Description fades in
       tl.fromTo(
-        imgSlotRef.current,
-        { y: 50, opacity: 0, clipPath: "inset(100% 0 0 0)" },
-        { y: 0, opacity: 1, clipPath: "inset(0% 0 0 0)", duration: 1.1, ease: "power3.out" },
-        0.5
+        descriptionRef.current,
+        { y: 15, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8 },
+        0.85
       );
 
-      // 5 — Meta bar fades in last
-      tl.fromTo(
-        metaRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.5 },
-        1.0
-      );
-
-      // ── Scroll exit: scale + opacity ──────────────────────────
+      // ── Scroll effect: Background fades out and parallax ────
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "60% top",
-        scrub: 0.4,
+        scrub: 0.6,
         onUpdate: (self) => {
           const p = self.progress;
-          if (wrapperRef.current) {
-            wrapperRef.current.style.opacity   = `${Math.max(0, 1 - p * 2.4)}`;
-            wrapperRef.current.style.transform = `translateY(${p * -24}px)`;
+          if (bgRef.current) {
+            bgRef.current.style.opacity = `${Math.max(0, 1 - p * 3.1)}`;
+            bgRef.current.style.transform = `translateY(${p * 92}px)`;
+          }
+          if (contentRef.current) {
+            contentRef.current.style.opacity = `${Math.max(0, 1 - p)}`;
           }
         },
       });
@@ -84,11 +106,13 @@ const HeroSection = () => {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative w-full min-h-screen overflow-hidden"
+      className="relative w-full min-h-screen overflow-hidden flex items-center justify-center"
       style={{ background: "#0a0a0a" }}
     >
-      {/* Hero background image */}
+      {/* Background image with fade animation */}
       <div
+        ref={bgRef}
+        data-testid="hero-bg"
         style={{
           position: "absolute",
           inset: 0,
@@ -96,205 +120,267 @@ const HeroSection = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          opacity: 0.18,
+          backgroundAttachment: isMobile ? "scroll" : "fixed",
+          opacity: 0,
           zIndex: 0,
+          pointerEvents: "none",
+          willChange: "opacity, transform",
+        }}
+      />
+
+      {/* Overlay for text readability */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.4) 100%)",
+          zIndex: 1,
           pointerEvents: "none",
         }}
       />
-      {/* ── All content ── */}
+
       <div
-        ref={wrapperRef}
-        className="w-full h-full flex flex-col"
         style={{
-          position: "relative",
-          zIndex: 1,
-          padding: "clamp(32px, 5vw, 72px) clamp(24px, 6vw, 96px)",
-          willChange: "transform, opacity",
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: "clamp(80px, 16vh, 180px)",
+          background: "linear-gradient(to bottom, rgba(10,10,10,0) 0%, rgba(10,10,10,0.78) 72%, rgba(10,10,10,0.96) 100%)",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      />
+
+      <div
+        style={{
+          position: "absolute",
+          top: "clamp(64px, 9vw, 92px)",
+          right: "clamp(16px, 3vw, 34px)",
+          zIndex: 13,
+          fontFamily: "'Inter', sans-serif",
+          fontSize: "clamp(11px, 0.95vw, 13px)",
+          letterSpacing: "0.01em",
+          color: "rgba(242, 242, 242, 0.68)",
+          textAlign: "right",
+          maxWidth: "min(72vw, 320px)",
+          lineHeight: 1.35,
+          pointerEvents: "none",
         }}
       >
-        {/* ── Giant name ──────────────────────────────────────── */}
-        <h1
-          ref={nameRef}
-          className="w-full font-bold leading-none tracking-tight"
+        It’s not low image quality — I blurred it on purpose :)
+      </div>
+
+      {/* Content */}
+      <div
+        ref={contentRef}
+        className="relative z-10 w-full h-full flex items-center justify-center px-6"
+        style={{
+          willChange: "opacity",
+          padding: "clamp(32px, 5vw, 72px) clamp(24px, 6vw, 96px)",
+        }}
+      >
+        <div
+          className="grid w-full max-w-[1400px] grid-cols-1 items-end gap-12 md:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] md:gap-16"
           style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: "clamp(76px, 17.5vw, 260px)",
-            color: "#f2f2f2",
-            letterSpacing: "-0.04em",
-            lineHeight: 0.92,
-            clipPath: "inset(100% 0 0 0)",
-            marginLeft: -57,
-            marginBottom: "clamp(20px, 3vw, 48px)",
+            minHeight: isMobile ? "clamp(460px, 76vh, 760px)" : "clamp(420px, 72vh, 760px)",
           }}
         >
-          Sakthivel
-        </h1>
+          <div
+            data-testid="hero-left-block"
+            className="flex flex-col items-start justify-center text-left"
+            style={{
+              transform: leftTransform,
+            }}
+          >
+            <h1
+              ref={nameRef}
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: isMobile ? "clamp(72px, 20vw, 124px)" : "clamp(112px, 19vw, 300px)",
+                color: "#d9d9d9",
+                letterSpacing: "-0.07em",
+                lineHeight: 0.86,
+                fontWeight: 800,
+                margin: 0,
+                clipPath: "inset(100% 0 0 0)",
+                marginBottom: isMobile ? "16px" : "clamp(20px, 2.4vw, 34px)",
+              }}
+            >
+              Sakthivel
+            </h1>
 
-        {/* ── Two-column text row ─────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-0" style={{ marginBottom: "clamp(24px, 3.5vw, 56px)" }}>
-          {/* Left: bold statement */}
-          <div ref={col1Ref} className="md:w-1/2" style={{ opacity: 0 }}>
             <div
+              ref={taglineRef}
+              data-testid="hero-tagline"
               style={{
                 display: "inline-flex",
-                flexDirection: "column",
                 alignItems: "flex-start",
-                marginLeft: 30,
-                gap: 6,
+                marginLeft: taglineLeftOffset,
+                opacity: 0,
+                padding: isMobile ? "8px 12px" : "10px 16px",
+                background: "#000000",
+                borderRadius: "14px",
+                border: "1px solid rgba(255, 255, 255, 0.14)",
               }}
             >
               <span
                 style={{
-                  display: "inline-block",
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: "clamp(16px, 2.2vw, 30px)",
-                  color: "#f2f2f2",
-                  fontWeight: 700,
+                  display: "block",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? "clamp(16px, 4.3vw, 22px)" : "clamp(20px, 1.9vw, 30px)",
+                  color: "#ffffff",
+                  letterSpacing: "0.01em",
+                  lineHeight: 1.2,
+                  fontWeight: 500,
+                  margin: 0,
+                  padding: "0px",
                 }}
               >
-                Built for production.
-              </span>
-              <span
-                style={{
-                  display: "inline-block",
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: "clamp(16px, 2.2vw, 30px)",
-                  color: "#f2f2f2",
-                  fontWeight: 700,
-                }}
-              >
-                Powered by AI.
+                I build products which
+                <br />
+                people can actually use
               </span>
             </div>
           </div>
 
-          {/* Right: description */}
-          <div ref={col2Ref} className="md:w-1/2 md:flex md:justify-end" style={{ opacity: 0 }}>
+          <div className="flex items-end justify-start md:justify-end">
             <p
-              className="leading-relaxed"
+              ref={descriptionRef}
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: "clamp(13px, 1.1vw, 16px)",
-                color: "rgba(242,242,242,0.5)",
-                maxWidth: 360,
+                fontSize: isMobile ? "clamp(13px, 3.3vw, 16px)" : "clamp(14px, 1.2vw, 17px)",
+                color: "rgba(242, 242, 242, 0.76)",
+                letterSpacing: "0.01em",
+                lineHeight: isMobile ? 1.55 : 1.7,
+                maxWidth: isMobile ? 340 : 420,
+                margin: 0,
+                opacity: 0,
+                textAlign: "left",
               }}
             >
-              I design and ship complex software by collapsing ideas
-              directly into production, faster than traditional
-              development allows. Every project starts as a question.
-              The answer becomes the product.
+              I leverage AI to collapse ideas directly into production, bridging the gap between concept and reality with professional precision and speed.
             </p>
-          </div>
-        </div>
-
-        {/* ── Image slot — rounded, full-width ────────────────── */}
-        <div
-          ref={imgSlotRef}
-          className="w-full relative overflow-hidden"
-          style={{
-            borderRadius: "clamp(12px, 2vw, 24px)",
-            aspectRatio: "16 / 7",
-            background: "hsl(var(--foreground) / 0.06)",
-            border: "1px solid hsl(var(--foreground) / 0.1)",
-            clipPath: "inset(100% 0 0 0)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {/* Placeholder content — user will replace with an image */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 12,
-              opacity: 0.25,
-              pointerEvents: "none",
-              userSelect: "none",
-            }}
-          >
-            {/* Camera icon */}
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "hsl(var(--foreground))" }}>
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-              <circle cx="12" cy="13" r="4"/>
-            </svg>
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 11,
-                letterSpacing: "0.25em",
-                textTransform: "uppercase",
-                color: "hsl(var(--foreground))",
-              }}
-            >
-              Image coming soon
-            </span>
-          </div>
-        </div>
-
-        {/* ── Bottom meta bar ─────────────────────────────────── */}
-        <div
-          ref={metaRef}
-          className="flex items-center justify-between mt-4 md:mt-6"
-          style={{ opacity: 0 }}
-        >
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 11,
-              letterSpacing: "0.35em",
-              textTransform: "uppercase",
-              color: "rgba(242,242,242,0.4)",
-            }}
-          >
-            AI-Native Engineer ~ Builder · 2026
-          </span>
-
-          {/* Animated scroll indicator */}
-          <div className="flex items-center gap-2.5">
-            <div
-              style={{
-                width: 28,
-                height: 1,
-              background: "rgba(242,242,242,0.2)",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  background: "hsl(var(--foreground) / 0.7)",
-                  animation: "scanLine 2s ease-in-out infinite",
-                }}
-              />
-            </div>
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 11,
-                letterSpacing: "0.35em",
-                textTransform: "uppercase",
-                color: "rgba(242,242,242,0.4)",
-              }}
-            >
-              Scroll
-            </span>
           </div>
         </div>
       </div>
 
-      <style>{`
-        @keyframes scanLine {
-          0%   { transform: translateX(-100%); }
-          100% { transform: translateX(200%);  }
-        }
-      `}</style>
+      <div
+        style={{
+          position: "absolute",
+          left: "clamp(24px, 6vw, 96px)",
+          right: "clamp(24px, 6vw, 96px)",
+          bottom: isMobile ? "clamp(16px, 3vh, 28px)" : "clamp(28px, 5vh, 52px)",
+          zIndex: 12,
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            height: "1px",
+            background: "rgba(242, 242, 242, 0.22)",
+            marginBottom: "14px",
+          }}
+        />
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexDirection: isMobile ? "column" : "row",
+            alignContent: "stretch",
+            gap: "20px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "18px",
+              flexWrap: "wrap",
+            }}
+          >
+            <a
+              href="https://x.com/SAKTHIVEL_E_"
+              aria-label="Visit X profile"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? "11px" : "12px",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "rgba(242, 242, 242, 0.62)",
+                textDecoration: "none",
+              }}
+            >
+              X
+            </a>
+            <a
+              href="https://www.linkedin.com/in/sakthivel-e-1924a0292/"
+              aria-label="Visit LinkedIn profile"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? "11px" : "12px",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "rgba(242, 242, 242, 0.62)",
+                textDecoration: "none",
+              }}
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://github.com/SAKTHIVEL280"
+              aria-label="Visit GitHub profile"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? "11px" : "12px",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "rgba(242, 242, 242, 0.62)",
+                textDecoration: "none",
+              }}
+            >
+              GitHub
+            </a>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              alignSelf: isMobile ? "flex-end" : "auto",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "11px",
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: "rgba(242, 242, 242, 0.5)",
+              }}
+            >
+              Scroll
+            </span>
+            <div
+              style={{
+                width: "24px",
+                height: "1px",
+                background: "rgba(242, 242, 242, 0.5)",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
     </section>
   );
 };

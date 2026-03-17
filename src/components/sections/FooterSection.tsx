@@ -147,6 +147,36 @@ const FooterSection = () => {
                   <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 flex-shrink-0 transition-transform duration-300 group-hover:rotate-45" />
                 </a>
               </Magnetic>
+
+              <div className="mt-6 flex items-center flex-wrap gap-6">
+                <a
+                  href="https://github.com/SAKTHIVEL280"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium opacity-70 hover:opacity-100 transition-opacity duration-300"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  GitHub
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/sakthivel-e-1924a0292/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium opacity-70 hover:opacity-100 transition-opacity duration-300"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  LinkedIn
+                </a>
+                <a
+                  href="https://x.com/SAKTHIVEL_E_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium opacity-70 hover:opacity-100 transition-opacity duration-300"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  X
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -159,35 +189,6 @@ const FooterSection = () => {
           >
             Built with only AI ~ and intention.
           </span>
-          <div className="flex items-center gap-6">
-            <a
-              href="https://github.com/SAKTHIVEL280"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium opacity-50 hover:opacity-100 transition-opacity duration-300"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              GitHub
-            </a>
-            <a
-              href="https://www.linkedin.com/in/sakthivel-e-1924a0292/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium opacity-50 hover:opacity-100 transition-opacity duration-300"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://x.com/SAKTHIVEL_E_"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium opacity-50 hover:opacity-100 transition-opacity duration-300"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              X
-            </a>
-          </div>
         </div>
       </div>
     </section>
