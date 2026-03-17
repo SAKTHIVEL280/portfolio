@@ -7,12 +7,12 @@ import SmoothScroll from "@/components/SmoothScroll";
 import ThemeToggle from "@/components/ThemeToggle";
 import Magnetic from "@/components/Magnetic";
 
-import redactifyImg from "@/assets/redactify.png";
-import voicesopImg from "@/assets/voicesop.png";
-import groundworkImg from "@/assets/groundwork.png";
-import daeqImg from "@/assets/daeq.png";
-import kiteImg from "@/assets/kite.png";
-import studyvaultImg from "@/assets/studyvault.png";
+import redactifyImg from "@/assets/redactify.webp";
+import voicesopImg from "@/assets/voicesop.webp";
+import groundworkImg from "@/assets/groundwork.webp";
+import daeqImg from "@/assets/daeq.webp";
+import kiteImg from "@/assets/kite.webp";
+import studyvaultImg from "@/assets/studyvault.webp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,7 +33,7 @@ const projects: Project[] = [
     image: redactifyImg,
     year: "2026",
     link: "https://redactify.daeq.in",
-    description: "AI-powered document redaction that runs 100% in your browser. No uploads, no servers — your data never leaves your device.",
+    description: "AI-powered document redaction that runs 100% in your browser. No uploads, no servers ~ your data never leaves your device.",
     highlights: ["BERT NER model for PII detection", "PDF, DOCX & TXT support", "Zero data transmission"],
   },
   {

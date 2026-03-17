@@ -147,7 +147,7 @@ const SkillsSection = () => {
           {/* Bottom statement */}
           <div className="mt-24 max-w-2xl">
             <p className="text-2xl md:text-3xl font-medium leading-relaxed" style={{ color: "hsl(var(--inv-muted))", fontFamily: "'Space Grotesk', sans-serif" }}>
-              I don't just write code — I craft experiences that blur the line between design and engineering.
+              I don't just write code ~ I craft experiences that blur the line between design and engineering.
             </p>
           </div>
         </div>

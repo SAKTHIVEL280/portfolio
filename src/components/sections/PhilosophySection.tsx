@@ -8,7 +8,7 @@ const principles = [
   {
     title: "Applied AI",
     description:
-      "Not AI for AI's sake. Every model, pipeline, and automation I build solves a tangible problem — reducing cost, increasing speed, or eliminating human error at scale.",
+      "Not AI for AI's sake. Every model, pipeline, and automation I build solves a tangible problem ~ reducing cost, increasing speed, or eliminating human error at scale.",
   },
   {
     title: "SaaS Architecture",

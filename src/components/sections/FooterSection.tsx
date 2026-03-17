@@ -152,13 +152,42 @@ const FooterSection = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex justify-center items-center pt-8 border-t border-border">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 border-t border-border">
           <span
-            className="text-lg md:text-xl tracking-wide text-foreground"
+            className="text-sm md:text-base tracking-wide text-foreground opacity-60"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            Built with only AI — and intention.
+            Built with only AI ~ and intention.
           </span>
+          <div className="flex items-center gap-6">
+            <a
+              href="https://github.com/SAKTHIVEL280"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium opacity-50 hover:opacity-100 transition-opacity duration-300"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/sakthivel-e-1924a0292/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium opacity-50 hover:opacity-100 transition-opacity duration-300"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://x.com/SAKTHIVEL_E_"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium opacity-50 hover:opacity-100 transition-opacity duration-300"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              X
+            </a>
+          </div>
         </div>
       </div>
     </section>

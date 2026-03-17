@@ -14,9 +14,10 @@ const SmoothScroll = ({ children }: { children: ReactNode }) => {
 
     lenis.on("scroll", ScrollTrigger.update);
 
-    gsap.ticker.add((time) => {
+    const lenisTick = (time: number) => {
       lenis.raf(time * 1000);
-    });
+    };
+    gsap.ticker.add(lenisTick);
     gsap.ticker.lagSmoothing(0);
 
     // Allow Navigation component to trigger smooth scroll via custom event
@@ -37,7 +38,7 @@ const SmoothScroll = ({ children }: { children: ReactNode }) => {
       window.removeEventListener("lenis-scroll-to", handleScrollTo);
       window.removeEventListener("lenis-scroll-top", handleScrollTop);
       lenis.destroy();
-      gsap.ticker.remove(lenis.raf as any);
+      gsap.ticker.remove(lenisTick);
     };
   }, []);
 

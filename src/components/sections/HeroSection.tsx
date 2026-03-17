@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import heroImg from "@/assets/hero.webp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -84,13 +85,29 @@ const HeroSection = () => {
       ref={sectionRef}
       id="hero"
       className="relative w-full min-h-screen overflow-hidden"
-      style={{ background: "hsl(var(--section-dark))" }}
+      style={{ background: "#0a0a0a" }}
     >
+      {/* Hero background image */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `url(${heroImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          opacity: 0.18,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
       {/* ── All content ── */}
       <div
         ref={wrapperRef}
         className="w-full h-full flex flex-col"
         style={{
+          position: "relative",
+          zIndex: 1,
           padding: "clamp(32px, 5vw, 72px) clamp(24px, 6vw, 96px)",
           willChange: "transform, opacity",
         }}
@@ -102,10 +119,11 @@ const HeroSection = () => {
           style={{
             fontFamily: "'Space Grotesk', sans-serif",
             fontSize: "clamp(76px, 17.5vw, 260px)",
-            color: "hsl(var(--foreground))",
+            color: "#f2f2f2",
             letterSpacing: "-0.04em",
             lineHeight: 0.92,
             clipPath: "inset(100% 0 0 0)",
+            marginLeft: -57,
             marginBottom: "clamp(20px, 3vw, 48px)",
           }}
         >
@@ -116,19 +134,38 @@ const HeroSection = () => {
         <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-0" style={{ marginBottom: "clamp(24px, 3.5vw, 56px)" }}>
           {/* Left: bold statement */}
           <div ref={col1Ref} className="md:w-1/2" style={{ opacity: 0 }}>
-            <p
-              className="font-bold leading-snug"
+            <div
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: "clamp(16px, 2.2vw, 30px)",
-                color: "hsl(var(--foreground))",
-                maxWidth: 480,
+                display: "inline-flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                marginLeft: 30,
+                gap: 6,
               }}
             >
-              Built for production.
-              <br />
-              Powered by AI.
-            </p>
+              <span
+                style={{
+                  display: "inline-block",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "clamp(16px, 2.2vw, 30px)",
+                  color: "#f2f2f2",
+                  fontWeight: 700,
+                }}
+              >
+                Built for production.
+              </span>
+              <span
+                style={{
+                  display: "inline-block",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "clamp(16px, 2.2vw, 30px)",
+                  color: "#f2f2f2",
+                  fontWeight: 700,
+                }}
+              >
+                Powered by AI.
+              </span>
+            </div>
           </div>
 
           {/* Right: description */}
@@ -138,12 +175,12 @@ const HeroSection = () => {
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "clamp(13px, 1.1vw, 16px)",
-                color: "hsl(var(--muted-foreground))",
+                color: "rgba(242,242,242,0.5)",
                 maxWidth: 360,
               }}
             >
               I design and ship complex software by collapsing ideas
-              directly into production — faster than traditional
+              directly into production, faster than traditional
               development allows. Every project starts as a question.
               The answer becomes the product.
             </p>
@@ -208,10 +245,10 @@ const HeroSection = () => {
               fontSize: 11,
               letterSpacing: "0.35em",
               textTransform: "uppercase",
-              color: "hsl(var(--muted-foreground))",
+              color: "rgba(242,242,242,0.4)",
             }}
           >
-            AI–Native Engineer &amp; Builder · 2026
+            AI-Native Engineer ~ Builder · 2026
           </span>
 
           {/* Animated scroll indicator */}
@@ -220,7 +257,7 @@ const HeroSection = () => {
               style={{
                 width: 28,
                 height: 1,
-                background: "hsl(var(--foreground) / 0.25)",
+              background: "rgba(242,242,242,0.2)",
                 position: "relative",
                 overflow: "hidden",
               }}
@@ -243,7 +280,7 @@ const HeroSection = () => {
                 fontSize: 11,
                 letterSpacing: "0.35em",
                 textTransform: "uppercase",
-                color: "hsl(var(--muted-foreground))",
+                color: "rgba(242,242,242,0.4)",
               }}
             >
               Scroll

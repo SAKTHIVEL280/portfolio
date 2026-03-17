@@ -5,10 +5,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Magnetic from "@/components/Magnetic";
-import redactifyImg from "@/assets/redactify.png";
-import voicesopImg from "@/assets/voicesop.png";
-import groundworkImg from "@/assets/groundwork.png";
-import daeqImg from "@/assets/daeq.png";
+import redactifyImg from "@/assets/redactify.webp";
+import voicesopImg from "@/assets/voicesop.webp";
+import groundworkImg from "@/assets/groundwork.webp";
+import daeqImg from "@/assets/daeq.webp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -109,6 +109,7 @@ const MobileProjects = () => {
             to="/projects"
             state={{ fromHome: true }}
             data-cursor="click"
+            onClick={() => { window.scrollTo({ top: 0, behavior: "instant" }); }}
             className="group inline-flex items-center gap-3 text-lg md:text-xl font-medium transition-opacity duration-300 hover:opacity-70"
             style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", borderBottom: "2px solid hsl(var(--foreground))" }}
           >
@@ -292,13 +293,14 @@ const DesktopProjects = () => {
             </div>
           ))}
 
-          {/* View All Projects — last item in track */}
+          {/* View All Projects ~ last item in track */}
           <div className="flex-shrink-0 w-[30vw] flex flex-col items-center justify-center">
             <Magnetic strength={20} className="inline-block">
               <Link
                 to="/projects"
                 state={{ fromHome: true }}
                 data-cursor="click"
+                onClick={() => { window.scrollTo({ top: 0, behavior: "instant" }); }}
                 className="group inline-flex items-center gap-3 text-xl md:text-2xl font-medium transition-opacity duration-300 hover:opacity-70"
                 style={{ fontFamily: "'Space Grotesk', sans-serif", color: "hsl(var(--foreground))", borderBottom: "2px solid hsl(var(--foreground))" }}
               >

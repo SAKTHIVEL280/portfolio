@@ -2,10 +2,10 @@ import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import redactifyImg from "@/assets/redactify.png";
-import voicesopImg from "@/assets/voicesop.png";
-import groundworkImg from "@/assets/groundwork.png";
-import daeqImg from "@/assets/daeq.png";
+import redactifyImg from "@/assets/redactify.webp";
+import voicesopImg from "@/assets/voicesop.webp";
+import groundworkImg from "@/assets/groundwork.webp";
+import daeqImg from "@/assets/daeq.webp";
 
 const imageSources = [redactifyImg, voicesopImg, groundworkImg, daeqImg];
 
