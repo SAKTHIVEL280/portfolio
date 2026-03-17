@@ -168,7 +168,7 @@ const HeroSection = () => {
           pointerEvents: "none",
         }}
       >
-        It’s not low image quality — I blurred it on purpose :)
+        It’s not low image quality ~ I blurred it on purpose :)
       </div>
 
       {/* Content */}
