@@ -9,6 +9,7 @@ import SkillsSection from "@/components/sections/SkillsSection";
 import FooterSection from "@/components/sections/FooterSection";
 import ThemeToggle from "@/components/ThemeToggle";
 import gsap from "gsap";
+import { Helmet } from "react-helmet-async";
 
 const Index = () => {
   const [introComplete, setIntroComplete] = useState(() => {
@@ -82,6 +83,21 @@ const Index = () => {
 
   return (
     <SmoothScroll>
+      <Helmet>
+        <title>Sakthivel | AI-Native Engineer</title>
+        <meta
+          name="description"
+          content="Sakthivel's portfolio - AI-native engineering, product delivery, and software systems built for real-world use."
+        />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://sakthivel.daeq.in/" />
+        <meta property="og:title" content="Sakthivel | AI-Native Engineer" />
+        <meta
+          property="og:description"
+          content="I design and ship complex software by collapsing ideas directly into production."
+        />
+        <meta property="og:url" content="https://sakthivel.daeq.in/" />
+      </Helmet>
       {!introComplete && <IntroLoader onComplete={handleIntroComplete} />}
       <ThemeToggle />
       <main ref={mainRef} style={{ opacity: introComplete ? undefined : 0 }}>

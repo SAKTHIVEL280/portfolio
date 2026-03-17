@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SmoothScroll from "@/components/SmoothScroll";
 import ThemeToggle from "@/components/ThemeToggle";
 import Magnetic from "@/components/Magnetic";
+import { Helmet } from "react-helmet-async";
 
 import redactifyImg from "@/assets/redactify.webp";
 import voicesopImg from "@/assets/voicesop.webp";
@@ -200,6 +201,21 @@ const Projects = () => {
 
   return (
     <SmoothScroll>
+      <Helmet>
+        <title>Projects | Sakthivel Portfolio</title>
+        <meta
+          name="description"
+          content="Explore projects built by Sakthivel across AI, developer tooling, security, and product engineering."
+        />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://sakthivel.daeq.in/projects" />
+        <meta property="og:title" content="Projects | Sakthivel Portfolio" />
+        <meta
+          property="og:description"
+          content="A collection of AI-native products and software systems shipped by Sakthivel."
+        />
+        <meta property="og:url" content="https://sakthivel.daeq.in/projects" />
+      </Helmet>
       <ThemeToggle />
 
       <div
